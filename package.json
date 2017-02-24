@@ -1,0 +1,19 @@
+{
+  "name": "battle-stations",
+  "version": "1.0.0",
+  "description": "We are doing a collaborative game. It is....",
+  "main": "server.js",
+  "scripts": {
+    "start": "node bin/www"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/battle-stations/battle-stations.git"
+  },
+  "author": "battle-stations",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/battle-stations/battle-stations/issues"
+  },
+  "homepage": "https://github.com/battle-stations/battle-stations#readme"
+}
