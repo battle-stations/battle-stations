@@ -1,0 +1,20 @@
+{
+  "name": "battle-stations",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./backend/bin/www",
+    "debug": "node debug ./backend/bin/www"
+  },
+  "dependencies": {
+    "body-parser": "~1.16.0",
+    "bootstrap": "^3.3.7",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.0",
+    "express": "~4.14.1",
+    "morgan": "~1.7.0",
+    "nodemon": "^1.11.0",
+    "pixi.js": "^4.4.1",
+    "serve-favicon": "~2.3.2"
+  }
+}
