@@ -13,9 +13,15 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'frontend')));
 
-app.use('/', require('./routes/index'));
+
+//Setup static delivery files
+app.use(express.static(path.join(__dirname, 'frontend')));
+app.use('/graphic_framework', express.static(path.join(__dirname, 'node_modules/pixi.js/dist')));
+
+
+//Setup Routes
+app.use('/api/v1/', require('./routes/index'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -33,7 +39,7 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.send({
-  	message: 'err.message'
+  	message: err.message
   });
 });
 
