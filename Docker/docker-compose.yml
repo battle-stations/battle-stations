@@ -1,0 +1,14 @@
+db:
+  image:
+  ports:
+    - "27017:27017"
+  command: "--smallfiles --logpath=/dev/null"
+node:
+  build: .
+  command: node backend/server.js
+  ports:
+    - "8080:8080"
+  volumes:
+    - .:battle-stations
+  links:
+    - db
