@@ -23,6 +23,7 @@ app.use('/bootstrap', express.static(path.join(__dirname, '../node_modules/boots
 
 //Setup Routes
 app.use('/api/v1/', require('./routes/index'));
+app.use('/api/v1/', require('./routes/games'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
