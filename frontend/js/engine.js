@@ -4,6 +4,7 @@ class Engine {
         this.width = width;
         this.height = height;
         this.pixiApp = null;
+        this.snakes = [];
     }
 
     init() {
@@ -16,8 +17,10 @@ class Engine {
         this.pixiApp.stage.addChild(headline);
     }
 
-    createSnake(x, y) {
-
+    createSnake(x, y, color) {
+        var newSnake = new Snake(x, y, color, this.pixiApp.stage);
+        newSnake.addPoint(x + 10, y + 10);
+        this.snakes.push(newSnake);
     }
 
 }
