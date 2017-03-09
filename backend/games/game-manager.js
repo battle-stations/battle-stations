@@ -27,6 +27,16 @@ exports.registerScreen = function(locationId) {
   }
 }
 
+exports.registerClient = function(locationId) {
+  if (isLocationRegistered(locationId)) {
+    var clientId = shortid.generate();
+    // open connection to client to get steering
+    return clientId;
+  } else {
+    return -1;
+  }
+}
+
 exports.startGame = function(locationId) {
   if (waitingLocations.length > 0) {
     opponentId = waitingLocations[0];

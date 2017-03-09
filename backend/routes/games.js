@@ -30,5 +30,19 @@ router.get('/registerScreen/:locationId', function(req, res, next) {
   res.json({ screenId: sId, screenRegistered:  screenRegistered});
 });
 
+router.get('/registerClient/:locationId', function(req, res, next) {
+  var cId = gameManager.registerScreen(req.params['locationId']);
+
+  // check if the given location exists
+  var clientRegisterd = true;
+  if (cId === -1) {
+      clientRegisterd = false;
+  }
+
+  res.json({ clientId: cId, clientRegistered:  clientRegisterd});
+});
+
+
+
 
 module.exports = router;
