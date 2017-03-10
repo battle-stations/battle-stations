@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+ db:
+  image: mongo:3.4
+  ports:
+    - "27017:27017"
+  command: "--smallfiles --logpath=/dev/null"
+ node:
+  build: ./app
+  command: "npm start"
+  ports:
+    - "3000:3000"
+  volumes:
+    - /home/docker/app/battle-stations/app:/app
+  links:
+    - db
+  environment:
+    PORT: 3000
+ nginx:
+  build: ./nginx
+  ports:
+    - "80:80"
+  links:
+    - node
+  volumes:
+    - /home/docker/app/battle-stations/nginx:/nginx
