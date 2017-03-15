@@ -1,38 +1,37 @@
 $(document).ready(function() {
-  // for getting screen size
-  // var w = window.innerWidth;
-  // var h = window.innerHeight;
-  //
-  // alert(h);
-  // alert(w);
 
   var leftControl = document.getElementById("left-control");
   var rightControl = document.getElementById("right-control");
 
+  //to avoid multitouch events
   var leftActive = false;
   var rightActive = false;
 
   var sendLeftStart = function() {
     if (!rightActive) {
       $('#counter').text("Left Touch Start");
+      rightControl.disabled = true;
       leftActive = true;
     }
   }
   var sendLeftEnd = function() {
     if (!rightActive) {
       $('#counter').text("Left Touch End");
+      rightControl.disabled = false
       leftActive = false;
     }
   }
   var sendRightStart = function() {
     if (!leftActive) {
       $('#counter').text("Right Touch Start");
+      leftControl.disabled = true;
       rightActive = true;
     }
   }
   var sendRightEnd = function() {
     if(!leftActive) {
       $('#counter').text("Right Touch End");
+      leftControl.disabled = false;
       rightActive = false;
     }
   }
