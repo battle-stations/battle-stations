@@ -9,30 +9,38 @@ $(document).ready(function() {
 
   var sendLeftStart = function() {
     if (!rightActive) {
-      $('#counter').text("Left Touch Start");
       rightControl.disabled = true;
       leftActive = true;
+
+      //send Left Touch Start to Backend
+
     }
   }
   var sendLeftEnd = function() {
     if (!rightActive) {
-      $('#counter').text("Left Touch End");
       rightControl.disabled = false
       leftActive = false;
+
+      //send Left Touch End to Backend
+
     }
   }
   var sendRightStart = function() {
     if (!leftActive) {
-      $('#counter').text("Right Touch Start");
       leftControl.disabled = true;
       rightActive = true;
+
+      //send Right Touch Start to Backend
+
     }
   }
   var sendRightEnd = function() {
     if(!leftActive) {
-      $('#counter').text("Right Touch End");
       leftControl.disabled = false;
       rightActive = false;
+
+      //send Right Touch End to Backend
+
     }
   }
 
