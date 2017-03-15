@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>battle-stations</title>
+
+    <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./player-control.css" rel="stylesheet">
+    <script src="/jquery/jquery.min.js"></script>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="./player-control.js"></script>
+
+  </head>
+  <body>
+    <div class="container">
+      <!-- display team -->
+      <div class="row">
+        <div class="col-xs-12" >
+          <p>Team: <p>
+          <p id="teamName"></p>
+        </div>
+      </div>
+      <!-- display buttons -->
+      <div class="row">
+        <div class="col-xs-6">
+          <button class="control btn-block" id="left-control" name="left-control">
+            <
+          </button>
+        </div>
+        <div class="col-xs-6">
+          <button class="control btn-block" id="right-control" name="right-control">
+            >
+          </button>
+        </div>
+      </div> <!-- row -->
+      <div class="row">
+        <div id="counter"></div>
+      </div>
+    </div>
+  </body>
+</html>

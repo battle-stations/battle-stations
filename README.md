@@ -10,7 +10,7 @@ We are doing a collaborative game. It is....
 
 #Team
 - Simon: Frontend, Graphics
-- Dennis: Backend + Docker
+- Thomas: Backend + Docker
 - Marvin: Frontend + Communication
 - Sebastian: Backend
-- 
+- Laura: Frontend
