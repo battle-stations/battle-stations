@@ -1,30 +1,20 @@
-let express = require('express');
-let app = express();
-let http = require('http').Server(app);
+// let express = require('express');
+// let app = express();
+// let http = require('http').Server(app);
 let events = require('events');
 let ws = require('ws');
 let uuid = require('uuid');
 
 let GameSerialization = require('./game-serialization');
 
-class BindingEventEmitter extends events.EventEmitter {
-  constructor() {
-    super();
-  }
-
-  _bind(...methods) {
-    methods.forEach((method) => this[method] = this[method].bind(this));
-  }
-}
-
-class DisplaySocket extends BindingEventEmitter {
+class DisplaySocket extends events.EventEmitter {
   constructor() {
     super();
 
     this.clients = {};
   }
 
-  addDisplayClient(ws) {
+  addClient(ws) {
     this.clients[ws.uuid] = ws;
     ws.status = 0;
     this.emit('connect', ws.uuid);
@@ -33,18 +23,22 @@ class DisplaySocket extends BindingEventEmitter {
       let decoded = GameSerialization.decodeMessage(message);
       switch(decoded.opcode) {
         case 'JIN':
-          this._displayJIN(ws, decoded);
+          this._JIN(ws, decoded);
           break;
         case 'ACK':
-          this._displayACK(ws, decoded);
+          this._ACK(ws, decoded);
           break;
         case 'ERR':
-          this._displayERR(ws, decoded);
+          this._ERR(ws, decoded);
           break;
         default:
           ws.send(GameSerialization.encodeError(1));
           break;
       }
+    });
+
+    ws.on('close', () => {
+      this.emit('disconnect', ws.uuid);
     });
   }
 
@@ -54,7 +48,6 @@ class DisplaySocket extends BindingEventEmitter {
       ws.send(GameSerialization.encodeMessage('TKN', 'Token', {
         token: token
       }));
-      ws.status = 1;
     }
   }
 
@@ -62,7 +55,6 @@ class DisplaySocket extends BindingEventEmitter {
     let ws = this.clients[uuid];
     if(ws.status === 1) {
       ws.send(GameSerialization.encodeMessage('CGM', 'Game', currentGame));
-      ws.status = 2;
     }
   }
 
@@ -70,7 +62,6 @@ class DisplaySocket extends BindingEventEmitter {
     let ws = this.clients[uuid];
     if(ws.status === 1) {
       ws.send(GameSerialization.encodeMessage('OVR'));
-      ws.status = 3;
     }
   }
 
@@ -88,7 +79,6 @@ class DisplaySocket extends BindingEventEmitter {
       let ws = this.clients[uuid];
       if(ws.status === 2) {
         ws.send(GameSerialization.encodeMessage('OVR'));
-        ws.status = 3;
       }
     };
   }
@@ -98,7 +88,6 @@ class DisplaySocket extends BindingEventEmitter {
       let ws = this.clients[uuid];
       if(ws.status === 3) {
         ws.send(GameSerialization.encodeMessage('NEW'));
-        ws.status = 2;
       }
     };
   }
@@ -109,7 +98,6 @@ class DisplaySocket extends BindingEventEmitter {
       if(ws.status === 2 && ws.track.number == track.number &&
         ws.track.station.name == track.station.name && ws.track.station.team.city == track.station.team.city) {
           ws.send(GameSerialization.encodeMessage('ITN'));
-          ws.status = 4;
       }
     };
   }
@@ -120,12 +108,11 @@ class DisplaySocket extends BindingEventEmitter {
       if(ws.status === 4 && ws.track.number == track.number &&
         ws.track.station.name == track.station.name && ws.track.station.team.city == track.station.team.city) {
           ws.send(GameSerialization.encodeMessage('OTN'));
-          ws.status = 1;
       }
     };
   }
 
-  _displayJIN(ws, decoded) {
+  _JIN(ws, decoded) {
     if(ws.status === 0) {
       let decodedMessage = GameSerialization.Track.decode(decoded.message);
       ws.track = decodedMessage;
@@ -135,30 +122,100 @@ class DisplaySocket extends BindingEventEmitter {
     }
   }
 
-  _displayACK(ws, decoded) {
-    if(ws.status === 1) {
-      this.emit('ack1', ws.uuid);
-    } else if(ws.status === 2) {
-      this.emit('ack2', ws.uuid);
-    } else if(ws.status === 3) {
-      this.emit('ack3', ws.uuid);
-    } else if(ws.status === 4) {
-      this.emit('ack4', ws.uuid);
+  _ACK(ws, decoded) {
+    let nStatus = GameSerialization.Status.decode(decoded.message).number;
+    if(ws.status === 0 || ws.status === 4) {
+      ws.status = nStatus;
+      this.emit('gameState', ws.uuid);
+    } else if(ws.status === 1 || ws.status === 2 || ws.status === 3) {
+      ws.status = nStatus;
     } else {
       ws.send(GameSerialization.encodeError(2));
     }
   }
 
-  _displayERR(ws, decoded) {
+  _ERR(ws, decoded) {
     this.emit('err', ws.uuid, GameSerialization.Error.decode(decoded.message));
   }
 }
 
-class ServerSocket extends BindingEventEmitter {
+class ControlSocket extends events.EventEmitter {
+  constructor() {
+    super();
+
+    this.clients = {};
+  }
+
+  addClient(ws) {
+    this.clients[ws.uuid] = ws;
+    ws.status = 0;
+    this.emit('connect', ws.uuid);
+
+    ws.on('message', (message) => {
+      let decoded = GameSerialization.decodeMessage(message);
+      switch(decoded.opcode) {
+        case 'JIN':
+          this._JIN(ws, decoded);
+          break;
+        case 'RDN':
+          this._RDN(ws, decoded);
+          break;
+        case 'LDN':
+          this._LDN(ws, decoded);
+          break;
+        case 'RUP':
+          this._RUP(ws, decoded);
+          break;
+        case 'LUP':
+          this._LUP(ws, decoded);
+          break;
+        case 'ERR':
+          this._ERR(ws, decoded);
+          break;
+        default:
+          ws.send(GameSerialization.encodeError(1));
+          break;
+      }
+    });
+  }
+
+  _JIN(ws, decoded) {
+    this.emit('join', ws.uuid, GameSerialization.Token.decode(decoded.message));
+    this._changeAndSendStatus(ws, 1);
+  }
+
+  _RDN(ws, decoded) {
+    this.emit('rightDown', ws.uuid);
+    this._changeAndSendStatus(ws, 2);
+  }
+
+  _LDN(ws, decoded) {
+    this.emit('leftDown', ws.uuid);
+    this._changeAndSendStatus(ws, 3);
+  }
+
+  _RDN(ws, decoded) {
+    this.emit('rightUp', ws.uuid);
+    this._changeAndSendStatus(ws, 1);
+  }
+
+  _LDN(ws, decoded) {
+    this.emit('leftUp', ws.uuid);
+    this._changeAndSendStatus(ws, 1);
+  }
+
+  _changeAndSendStatus(ws, status) {
+    ws.status = status;
+    ws.send(GameSerialization.encodeMessage('ACK', 'Status', {number: ws.status}));
+  }
+}
+
+class ServerSocket {
   constructor() {
     super();
 
     this.displaySocket = new DisplaySocket();
+    this.controlSocket = new ControlSocket();
     this._wss = new ws.Server({port: 8080});
 
     this._wss.on('connection', (ws) => {
@@ -166,7 +223,10 @@ class ServerSocket extends BindingEventEmitter {
 
       switch(ws.protocol) {
         case 'display':
-          this.displaySocket.addDisplayClient(ws);
+          this.displaySocket.addClient(ws);
+          break;
+        case 'control':
+          this.controlSocket.addClient(ws);
           break;
         default:
           ws.send('Nope, sorry.');
@@ -176,46 +236,49 @@ class ServerSocket extends BindingEventEmitter {
   }
 }
 
-app.use('/', express.static(__dirname + '/../../frontend/'));
-app.use('/messages', express.static(__dirname + '/../../messages/'));
+module.exports = ServerSocket;
 
-let socket = new ServerSocket(http);
-let track = {
-  number: 1,
-  station: {
-    name: 'Stadtmitte',
-    team: {
-      city: 'Stuttgart'
-    }
-  }
-};
+// app.use('/', express.static(__dirname + '/../../frontend/'));
+// app.use('/messages', express.static(__dirname + '/../../messages/'));
 
-// Testing
-socket.displaySocket.on('join', (uuid, track) => {
-  socket.displaySocket.sendToken(uuid, 'aToken');
-  socket.displaySocket.sendGame(uuid, {roundPoints: [{teamPoints: [{point: {x: 1, y: 2}, team: track.station.team}]}]});
-});
+// let socket = new ServerSocket(http);
+// let track = {
+//   number: 1,
+//   station: {
+//     name: 'Stadtmitte',
+//     team: {
+//       city: 'Stuttgart'
+//     }
+//   }
+// };
 
-socket.displaySocket.on('ack1', (uuid) => {
-  console.log('ack1');
-});
+// // Testing
+// socket.displaySocket.on('join', (uuid, track) => {
+//   socket.displaySocket.sendToken(uuid, 'aToken');
+// });
 
-socket.displaySocket.on('ack2', (uuid) => {
-  console.log('ack2');
-  socket.displaySocket.broadcastUpdate({teamPoints: [{point: {x: 1, y: 2}, team: track.station.team}]});
-  socket.displaySocket.broadcastTrackIncoming(track);
-});
+// socket.displaySocket.on('gameState', (uuid) => {
+//   socket.displaySocket.sendGame(uuid, {roundPoints: [{teamPoints: [{point: {x: 1, y: 2}, team: track.station.team}]}]});
+// });
 
-socket.displaySocket.on('ack3', (uuid) => {
-  console.log('ack3');
-});
+// setInterval(() => {
+//   socket.displaySocket.broadcastUpdate({teamPoints: [{point: {x: 1, y: 2}, team: track.station.team}]});
+// }, 2000);
 
-socket.displaySocket.on('ack4', (uuid) => {
-  console.log('ack4');
-  socket.displaySocket.broadcastTrackOutgoing(track);
-});
+// setInterval(() => {
+//   socket.displaySocket.broadcastTrackIncoming(track);
+//   setTimeout(() => {
+//     socket.displaySocket.broadcastTrackOutgoing(track);
+//   }, 2000);
+// }, 11111);
 
+// setInterval(() => {
+//   socket.displaySocket.broadcastOver();
+//   setTimeout(() => {
+//     socket.displaySocket.broadcastNew();
+//   }, 2000);
+// }, 30000);
 
-http.listen(3000, () => {
-  console.log('listening on *:3000');
-});
+// http.listen(3000, () => {
+//   console.log('listening on *:3000');
+// });
