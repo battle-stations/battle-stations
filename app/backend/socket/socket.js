@@ -17,37 +17,29 @@ class BindingEventEmitter extends events.EventEmitter {
   }
 }
 
-class ServerSocket extends BindingEventEmitter {
+class DisplaySocket extends BindingEventEmitter {
   constructor() {
     super();
 
     this.clients = {};
-    this.wss = new ws.Server({port: 8080});
+  }
 
-    this.wss.on('connection', (ws) => {
-      ws.uuid = uuid.v4();
-      this.clients[ws.uuid] = ws;
-      ws.status = 0;
-      this.emit('displayconnect', ws.uuid);
+  addDisplayClient(ws) {
+    this.clients[ws.uuid] = ws;
+    ws.status = 0;
+    this.emit('connect', ws.uuid);
 
-      switch(ws.protocol) {
-        case 'display':
-          ws.on('message', (message) => {
-            let decoded = GameSerialization.decodeMessage(message);
-            switch(decoded.opcode) {
-              case 'JIN':
-                this._displayJIN(ws, decoded);
-                break;
-              case 'TKN':
-                break;
-              default:
-                ws.send(GameSerialization.encodeError(1));
-                break;
-            }
-          });
+    ws.on('message', (message) => {
+      let decoded = GameSerialization.decodeMessage(message);
+      switch(decoded.opcode) {
+        case 'JIN':
+          this._displayJIN(ws, decoded);
+          break;
+        case 'ACK':
+          this._displayACK(ws, decoded);
           break;
         default:
-          ws.send('Nope, sorry.');
+          ws.send(GameSerialization.encodeError(1));
           break;
       }
     });
@@ -63,16 +55,60 @@ class ServerSocket extends BindingEventEmitter {
     }
   }
 
+  sendGame(uuid, currentGame) {
+    let ws = this.clients[uuid];
+    if(ws.status === 1) {
+      ws.send(GameSerialization.encodeMessage('CGM', 'Game', currentGame));
+      ws.status = 2;
+    }
+  }
+
+  sendOver(uuid) {
+    let ws = this.clients[uuid];
+    if(ws.status === 1) {
+      ws.send(GameSerialization.encodeMessage('OVR'));
+      ws.status = 3;
+    }
+  }
+
   _displayJIN(ws, decoded) {
     if(ws.status === 0) {
-      this.emit('displayjoin', ws.uuid, GameSerialization.Track.decode(decoded.message));
+      this.emit('join', ws.uuid, GameSerialization.Track.decode(decoded.message));
     } else {
       ws.send(GameSerialization.encodeError(2));
     }
   }
 
-  _disconnect() {
-    // console.log(`user disconnected`);
+  _displayACK(ws, decoded) {
+    if(ws.status === 2) {
+      this.emit('ack2', ws.uuid);
+    } else if(ws.status === 3) {
+      this.emit('ack3', ws.uuid);
+    } else {
+      ws.send(GameSerialization.encodeError(2));
+    }
+  }
+}
+
+class ServerSocket extends BindingEventEmitter {
+  constructor() {
+    super();
+
+    this.displaySocket = new DisplaySocket();
+    this._wss = new ws.Server({port: 8080});
+
+    this._wss.on('connection', (ws) => {
+      ws.uuid = uuid.v4();
+
+      switch(ws.protocol) {
+        case 'display':
+          this.displaySocket.addDisplayClient(ws);
+          break;
+        default:
+          ws.send('Nope, sorry.');
+          break;
+      }
+    });
   }
 }
 
@@ -82,8 +118,17 @@ app.use('/messages', express.static(__dirname + '/../../messages/'));
 let socket = new ServerSocket(http);
 
 // Testing
-socket.on('displayjoin', (uuid, track) => {
-  socket.sendToken(uuid, 'aToken');
+socket.displaySocket.on('join', (uuid, track) => {
+  socket.displaySocket.sendToken(uuid, 'aToken');
+  socket.displaySocket.sendGame(uuid, {roundPoints: [{teamPoints: [{point: {x: 1, y: 2}, team: track.station.team}]}]});
+});
+
+socket.displaySocket.on('ack2', (uuid) => {
+  console.log('ack2');
+});
+
+socket.displaySocket.on('ack3', (uuid) => {
+  console.log('ack3');
 });
 
 http.listen(3000, () => {
