@@ -12,6 +12,15 @@ class DisplaySocket {
    */
   constructor(city, station, track) {
     this.status = 0;
+    this.track = {
+      number: track,
+      station: {
+        name: station,
+        team: {
+          city: city
+        }
+      }
+    };
 
     this._socket = new WebSocket('ws://localhost:8080', 'display');
     this._socket.binaryType = 'arraybuffer';
@@ -22,29 +31,69 @@ class DisplaySocket {
       switch(decoded.opcode) {
         case 'TKN':
           if(this.status === 0) {
-            this.status = 1;
             this.onToken(GameSerialization.Token.decode(decoded.message));
+            this.status = 1;
+            
+            this._socket.send(GameSerialization.encodeMessage('ACK'));
           } else {
             this._socket.send(GameSerialization.encodeError(2));
           }
           break;
         case 'CGM':
           if(this.status === 1) {
-            this.status = 2;
             this.onCurrentGame(GameSerialization.Game.decode(decoded.message));
+            this.status = 2;
             this._socket.send(GameSerialization.encodeMessage('ACK'));
           } else {
             this._socket.send(GameSerialization.encodeError(2));
           }
           break;
         case 'OVR':
-          if(this.status === 1) {
-            this.status = 3;
+          if(this.status === 1 || this.status === 2) {
             this.onOver();
+            this.status = 3;
             this._socket.send(GameSerialization.encodeMessage('ACK'));
           } else {
             this._socket.send(GameSerialization.encodeError(2));
           }
+          break;
+        case 'UDT':
+          if(this.status === 2) {
+            this.onUpdate(GameSerialization.RoundPoints.decode(decoded.message));
+          } else {
+            this._socket.send(GameSerialization.encodeError(2));
+          }
+          break;
+        case 'ITN':
+          if(this.status === 2) {
+            this.onIncomingTrain();
+            this.status = 4;
+            this._socket.send(GameSerialization.encodeMessage('ACK'));
+          } else {
+            this._socket.send(GameSerialization.encodeError(2));
+          }
+          break;
+        case 'NEW':
+          if(this.status === 3) {
+            this.onNew();
+            this.status = 2;
+            this._socket.send(GameSerialization.encodeMessage('ACK'));
+          } else {
+            this._socket.send(GameSerialization.encodeError(2));
+          }
+          break;
+        case 'OTN':
+          if(this.status === 4) {
+            this.onOutgoingTrain();
+            this.status = 1;
+            this._socket.send(GameSerialization.encodeMessage('ACK'));
+          } else {
+            this._socket.send(GameSerialization.encodeError(2));
+          }
+          break;
+        case 'ERR':
+          this.onError(GameSerialization.Error.decode(decoded.message));
+          break;
         default:
           this._socket.send(GameSerialization.encodeError(1));
           break;
@@ -55,17 +104,17 @@ class DisplaySocket {
   onToken(message) {}
   onCurrentGame(message) {}
   onOver() {}
+  onUpdate(message) {}
+  onIncomingTrain() {}
+  onNew() {}
+  onOutgoingTrain() {}
+
+  onError(message) {
+    console.log(message);
+  }
 
   _onOpen(city, station, track, event) {
-    this._socket.send(GameSerialization.encodeMessage('JIN', 'Track', {
-      number: track,
-      station: {
-        name: station,
-        team: {
-          city: city
-        }
-      }
-    }));
+    this._socket.send(GameSerialization.encodeMessage('JIN', 'Track', this.track));
   }
 }
 
@@ -86,6 +135,22 @@ let startSocket = () => {
 
   displaySocket.onOver = () => {
     console.log('OVR');
+  }
+
+  displaySocket.onUpdate = (message) => {
+    console.log('UDT', message);
+  }
+
+  displaySocket.onIncomingTrain = () => {
+    console.log('ITN');
+  }
+
+  displaySocket.onNew = () => {
+    console.log('NEW');
+  }
+
+  displaySocket.onOutgoingTrain = () => {
+    console.log('OTN')
   }
 }
 
