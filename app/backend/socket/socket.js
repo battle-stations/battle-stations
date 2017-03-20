@@ -212,8 +212,6 @@ class ControlSocket extends events.EventEmitter {
 
 class ServerSocket {
   constructor() {
-    super();
-
     this.displaySocket = new DisplaySocket();
     this.controlSocket = new ControlSocket();
     this._wss = new ws.Server({port: 8080});
