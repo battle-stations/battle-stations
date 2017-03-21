@@ -59,7 +59,7 @@ class GameSerialization {
 
 GameSerialization.initialized = false;
 
-protobuf.load("messages/game.proto", (err, root) => {
+protobuf.load("../../messages/game.proto", (err, root) => {
   if (err) throw err;
 
   GameSerialization.Point = root.lookup('game.Point');

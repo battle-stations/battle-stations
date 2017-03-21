@@ -113,67 +113,94 @@ class GameSession {
     this.inputManagerTwo = new InputManager();
     this.teamOneX = [];
     this.teamOneY = [];
-    this.teamOneDir = Math.round((Math.random() * 4) + 1); //1 = +X, 2 = -X, 3 = +Y, 4 = -Y
+    this.teamOneDir = Math.floor((Math.random() * 4) + 1); //1 = +X, 2 = -X, 3 = +Y, 4 = -Y
     this.teamTwoX = [];
     this.teamTwoY = [];
-    this.teamTwoDir = Math.round((Math.random() * 4) + 1);
+    this.teamTwoDir = Math.floor((Math.random() * 4) + 1);
     this.sizeX = sizeX;
     this.sizeY = sizeY;
     this.gameInterval = 0;
-    teamOneX.push = Math.round(Math.random() * sizeX);
-    teamOneY.push = Math.round(Math.random() * sizeY);
-    teamTwoX.push = Math.round(Math.random() * sizeX);
-    teamTwoY.push = Math.round(Math.random() * sizeY);
   }
 
+  updatePosition(team) {
+    let move = 0;
+    if (team == 1) {
+      move = this.inputManagerOne.getDirection();
+      let currentX = this.teamOneX[this.teamOneX.length-1];
+      let currentY = this.teamOneY[this.teamOneY.length-1];
+      let newPos = this.calculateNewPosition(move,currentX,currentY,this.teamOneDir);
+      if(newPos[0] < 0){
+        newPos[0] = this.sizeX;
+      }else if(newPos[0] > this.sizeX){
+        newPos[0] = 0;
+      }
+
+      if(newPos[1] < 0){
+        newPos[1] = this.sizeY;
+      }else if(newPos[1] > this.sizeY){
+        newPos[1] = 0;
+      }
+      this.teamOneX.push(newPos[0]);
+      this.teamOneY.push(newPos[1]);
+      this.teamOneDir = newPos[2];
+    } else if (team == 2) {
+      move = this.inputManagerTwo.getDirection();
+      let currentX = this.teamTwoX[this.teamTwoX.length-1];
+      let currentY = this.teamTwoY[this.teamTwoY.length-1];
+      let newPos = this.calculateNewPosition(move,currentX,currentY,this.teamTwoDir);
+      if(newPos[0] < 0){
+        newPos[0] = this.sizeX;
+      }else if(newPos[0] > this.sizeX){
+        newPos[0] = 0;
+      }
+
+      if(newPos[1] < 0){
+        newPos[1] = this.sizeY;
+      }else if(newPos[1] > this.sizeY){
+        newPos[1] = 0;
+      }
+      this.teamTwoX.push(newPos[0]);
+      this.teamTwoY.push(newPos[1]);
+      this.teamTwoDir = newPos[2];
+    }
+  }
+
+
   startGame(){
+    const that = this;
+    this.teamOneX.push(Math.round(Math.random() * this.sizeX));
+    this.teamOneY.push(Math.round(Math.random() * this.sizeY));
+    this.teamTwoX.push(Math.round(Math.random() * this.sizeX));
+    this.teamTwoY.push(Math.round(Math.random() * this.sizeY));
     const game = 0;
     //TODO DEFINE GAME
     const teamOne = this.gameManager.teamOne;
     const teamTwo = this.gameManager.teamTwo;
-    for(let i=0; i < teamOne.stations.length(); i++){
-      for(let s=0; s < teamOne.stations[i].tracks.length(); s++){
+    for(let i=0; i < teamOne.stations.length; i++){
+      for(let s=0; s < teamOne.stations[i].tracks.length; s++){
         teamOne.stations[i].tracks[s].sendGame(game);
       }
     }
-    for(let i=0; i < teamTwo.stations.length(); i++){
-      for(let s=0; s < teamTwo.stations[i].tracks.length(); s++){
+    for(let i=0; i < teamTwo.stations.length; i++){
+      for(let s=0; s < teamTwo.stations[i].tracks.length; s++){
         teamTwo.stations[i].tracks[s].sendGame(game);
       }
     }
     this.gameInterval = timer.setInterval(function() {
-        this.updatePosition(1);
-        this.updatePosition(2);
-        let result = this.detectCollision();
+        that.updatePosition(1);
+        that.updatePosition(2);
+        let result = that.detectCollision();
         if (result < 0) {
-          this.end(result);
+          that.end(result);
         }
-    }, this.interval;);
+        console.log(that.teamOneX[that.teamOneX.length-1] + " " + that.teamOneY[that.teamOneY.length-1] + " " + that.teamOneDir);
+        console.log(that.teamTwoX[that.teamTwoX.length-1] + " " + that.teamTwoY[that.teamTwoY.length-1] + " " + that.teamTwoDir);
+    }, this.interval);
   }
 
-  updatePosition(team){
-    let move = 0;
-    if (team == 1) {
-      move = inputManagerOne.getDirection();
-      let currentX = teamOneX[teamOneX.length()-1];
-      let currentY = teamOneY[teamOneY.length()-1];
-      let newPos = calculateNewPosition(move,currentX,currentY,teamOneDir);
-      teamOneX.push(newPos[0]);
-      teamOneY.push(newPos[1]);
-      teamOneDir = newPos[2];
-    } else if (team == 2) {
-      move = inputManagerTwo.getDirection();
-      let currentX = teamTwoX[teamTwoX.length()-1];
-      let currentY = teamTwoY[teamTwoY.length()-1];
-      let newPos = calculateNewPosition(move,currentX,currentY,teamTwoDir);
-      teamTwoX.push(newPos[0]);
-      teamTwoY.push(newPos[1]);
-      teamTwoDir = newPos[2];
-    }
-  }
 
   calculateNewPosition(move, currentX, currentY, currentDir){
-    let pos = [currentX, currentY, move];
+    let pos = [currentX, currentY, currentDir];
     switch(move){
       //same direction
       case 0:
@@ -254,25 +281,25 @@ class GameSession {
 
   detectCollision(){
     //DetectCollision on X for teamOne
-    let currentX = teamOneX[teamOneX.length()-1];
-    let currentY = teamOneY[teamOneY.length()-1];
+    let currentX = this.teamOneX[this.teamOneX.length-1];
+    let currentY = this.teamOneY[this.teamOneY.length-1];
     let s = 0;
-    while(teamTwoX.indexOf(currentX,s) != -1){
-      if(teamTwoY[teamTwoX.indexOf(currentX,s)] == currentY){
+    while(this.teamTwoX.indexOf(currentX,s) != -1){
+      if(this.teamTwoY[this.teamTwoX.indexOf(currentX,s)] == currentY){
         return -1; //team One lost
       }else{
-        s = teamTwoX.indexOf(currentX,s) + 1;
+        s = this.teamTwoX.indexOf(currentX,s) + 1;
       }
     }
     //DetectCollision on Y for teamOne
-    currentX = teamTwoX[teamTwoX.length()-1];
-    currentY = teamTwoY[teamTwoY.length()-1];
+    currentX = this.teamTwoX[this.teamTwoX.length-1];
+    currentY = this.teamTwoY[this.teamTwoY.length-1];
     s = 0;
-    while(teamOneX.indexOf(currentX,s) != -1){
-      if(teamOneY[teamOneX.indexOf(currentX,s)] == currentY){
+    while(this.teamOneX.indexOf(currentX,s) != -1){
+      if(this.teamOneY[this.teamOneX.indexOf(currentX,s)] == currentY){
         return -2; //team One lost
       }else{
-        s = teamOneX.indexOf(currentX,s) + 1;
+        s = this.teamOneX.indexOf(currentX,s) + 1;
       }
     }
     return 0;
@@ -280,7 +307,6 @@ class GameSession {
 
   end(result){
     clearInterval(this.gameInterval);
-
     myServer.displaySocket.sendOver(displayUuids);
     delete this;
   }
@@ -319,10 +345,6 @@ class InputManager {
   }
 }
 
-class GameProtocol {
-  const
-}
-
 class GameManager {
   constructor(teamOne, teamTwo){
     this.gameId = 0;
@@ -337,9 +359,10 @@ class GameManager {
     this.gameId = shortid.generate();
     let protoGame = [];
     let game = new GameSession(this.gameId, this.sizeX, this.sizeY, this);
-    teamManager.teams[teamOne].setCurrentGame(game, 1);
-    teamManager.teams[teamTwo].setCurrentGame(game, 2);
+    this.teamOne.setCurrentGame(game, 1);
+    this.teamTwo.setCurrentGame(game, 2);
     this.currentGame = game;
+    return game;
   }
 
   getCurrentGame(){
@@ -355,7 +378,7 @@ class GameManager {
 
 myServer.controlSocket.on('join',(uuid, token) => {
   players[uuid] = token;
-  let token = players[uuid].token.split("_");
+  token = players[uuid].token.split("_");
   let team = token[0];
   let station = token[1];
   let track = token[2];
@@ -364,74 +387,98 @@ myServer.controlSocket.on('join',(uuid, token) => {
 
 myServer.controlSocket.on('rightDown',(uuid) => {
   players[uuid] = token;
-  let token = players[uuid].token.split("_");
+  token = players[uuid].token.split("_");
   let team = token[0];
   let station = token[1];
   let track = token[2];
-  let game = teamManager.teams[team].getCurrentGame();
-  let teamNo = teamManager.teams[team].getCurrentTeamNo();
-  if (teamNo == 1) {
-    game.inputManagerOne.increaseRight();
-  } else if (teamNo == 2) {
-    game.inputManagerTwo.increaseRight();
+  if(teamManger.teams[team].stations[station].track[track].active == true){
+    let game = teamManager.teams[team].getCurrentGame();
+    let teamNo = teamManager.teams[team].getCurrentTeamNo();
+    if (teamNo == 1) {
+      game.inputManagerOne.increaseRight();
+    } else if (teamNo == 2) {
+      game.inputManagerTwo.increaseRight();
+    }
   }
 });
 
 myServer.controlSocket.on('leftDown',(uuid) => {
   players[uuid] = token;
-  let token = players[uuid].token.split("_");
+  token = players[uuid].token.split("_");
   let team = token[0];
   let station = token[1];
   let track = token[2];
-  let game = teamManager.teams[team].getCurrentGame();
-  let teamNo = teamManager.teams[team].getCurrentTeamNo();
-  if (teamNo == 1) {
-    game.inputManagerOne.increaseLeft();
-  } else if (teamNo == 2) {
-    game.inputManagerTwo.increaseLeft();
+  if(teamManger.teams[team].stations[station].track[track].active == true){
+    let game = teamManager.teams[team].getCurrentGame();
+    let teamNo = teamManager.teams[team].getCurrentTeamNo();
+    if (teamNo == 1) {
+      game.inputManagerOne.increaseLeft();
+    } else if (teamNo == 2) {
+      game.inputManagerTwo.increaseLeft();
+    }
   }
 });
 
 myServer.controlSocket.on('rightUp',(uuid) => {
   players[uuid] = token;
-  let token = players[uuid].token.split("_");
+  token = players[uuid].token.split("_");
   let team = token[0];
   let station = token[1];
   let track = token[2];
-  let game = teamManager.teams[team].getCurrentGame();
-  let teamNo = teamManager.teams[team].getCurrentTeamNo();
-  if (teamNo == 1) {
-    game.inputManagerOne.decreaseRight();
-  } else if (teamNo == 2) {
-    game.inputManagerTwo.decreaseRight();
+  if(teamManger.teams[team].stations[station].track[track].active == true){
+    let game = teamManager.teams[team].getCurrentGame();
+    let teamNo = teamManager.teams[team].getCurrentTeamNo();
+    if (teamNo == 1) {
+      game.inputManagerOne.decreaseRight();
+    } else if (teamNo == 2) {
+      game.inputManagerTwo.decreaseRight();
+    }
   }
 });
 
 myServer.controlSocket.on('leftUp',(uuid) => {
   players[uuid] = token;
-  let token = players[uuid].token.split("_");
+  token = players[uuid].token.split("_");
   let team = token[0];
   let station = token[1];
   let track = token[2];
-  let game = teamManager.teams[team].getCurrentGame();
-  let teamNo = teamManager.teams[team].getCurrentTeamNo();
-  if (teamNo == 1) {
-    game.inputManagerOne.decreaseLeft();
-  } else if (teamNo == 2) {
-    game.inputManagerTwo.decreaseLeft();
+  if(teamManger.teams[team].stations[station].track[track].active == true){
+    let game = teamManager.teams[team].getCurrentGame();
+    let teamNo = teamManager.teams[team].getCurrentTeamNo();
+    if (teamNo == 1) {
+      game.inputManagerOne.decreaseLeft();
+    } else if (teamNo == 2) {
+      game.inputManagerTwo.decreaseLeft();
+    }
   }
 });
 
 myServer.controlSocket.on('disconnect',(uuid) => {
-  //remove from players array
-  let token = players[uuid].token.split("_");
+  token = players[uuid].token.split("_");
   let team = token[0];
   let station = token[1];
   let track = token[2];
   teamManager.teams[team].stations[station].tracks[track].players[uuid].remove();
+  delete players[uuid];
 });
 
 let teamManager = new TeamManager();
-let gameManager = new gameManager();
 teamManager.addTeam("Stuttgart");
-console.log(teamManager.teams);
+teamManager.teams["Stuttgart"].addStation("Stadtmitte");
+teamManager.teams["Stuttgart"].stations["Stadtmitte"].addTrack(1);
+teamManager.teams["Stuttgart"].stations["Stadtmitte"].addTrack(2);
+teamManager.teams["Stuttgart"].addStation("Feuersee");
+teamManager.teams["Stuttgart"].stations["Feuersee"].addTrack(1);
+teamManager.teams["Stuttgart"].stations["Feuersee"].addTrack(2);
+teamManager.addTeam("Muenchen");
+teamManager.teams["Muenchen"].addStation("Hauptbahnhof");
+teamManager.teams["Muenchen"].stations["Hauptbahnhof"].addTrack(1);
+teamManager.teams["Muenchen"].stations["Hauptbahnhof"].addTrack(2);
+teamManager.teams["Muenchen"].addStation("Marienplatz");
+teamManager.teams["Muenchen"].stations["Marienplatz"].addTrack(1);
+teamManager.teams["Muenchen"].stations["Marienplatz"].addTrack(2);
+const gameManager = new GameManager(teamManager.teams["Stuttgart"], teamManager.teams["Muenchen"]);
+const game = gameManager.newGame();
+game.startGame();
+console.log(game);
+game.inputManagerOne.increaseRight();
