@@ -55,8 +55,9 @@ class TeamManager {
     this.teams = {};
   }
 
-  generateToken(teamId, stationId, trackId) {
+  generateToken(teamId, stationId, trackId, displayUuid) {
     let token = teamId + "_" + stationId + "_" + trackId;
+    myServer.DisplaySocket.sendToken(displayUuid, token);
   }
 
   addTeam(cityname){
@@ -89,18 +90,20 @@ class GameManager {
     this.currentGame = 0;
   }
 
-  newGame(this.gameId){
+  newGame(this.gameId, displayUuid){
     let game = new GameSession(gameId);
-    gameId = gameId + 1;
+    this.gameId += 1;
     this.currentGame = game;
+    myServer.DisplaySocket.sendGame(displayUuid, game);
   }
 
   getCurrentGame(){
     return this.currentGame;
   }
 
-  finishCurrentGame(){
+  finishCurrentGame(displayUuid){
     this.currentGame.end();
+    myServer.DisplaySocket.sendOver(displayUuid);
   }
 }
 
