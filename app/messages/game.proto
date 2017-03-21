@@ -1,0 +1,47 @@
+syntax = "proto3";
+package game;
+
+message Point {
+  sint32 x = 1;
+  sint32 y = 2;
+}
+
+message Team {
+  string city = 1;
+}
+
+message Station {
+  string name = 1;
+  Team team = 2;
+}
+
+message Track {
+  uint32 number = 1;
+  Station station = 2;
+}
+
+message TeamPoint {
+  Point point = 1;
+  Team team = 2;
+}
+
+message RoundPoints {
+  repeated TeamPoint team_points = 1;
+}
+
+message Game {
+  repeated RoundPoints round_points = 1;
+}
+
+message Token {
+  string token = 1;
+}
+
+message Status {
+  sint32 number = 1;
+}
+
+message Error {
+  sint32 number = 1;
+  string message = 2;
+}
