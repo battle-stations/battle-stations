@@ -5,6 +5,40 @@ const timer = require('timers');
 let myServer = new ServerSocket();
 let players = {};
 
+class GameProto {
+  constructor(roundPoints){
+    this.roundPoints = roundPoints;
+  }
+
+  constructor(){
+
+  }
+
+  addRoundPoint(roundPoints){
+    this.roundPoints.push();
+  }
+}
+
+class RoundPointProto {
+  constructor(teamPoints){
+    this.teamPoints = teamPoints;
+  }
+}
+
+class TeamPointProto {
+  constructor(point,teamid){
+    this.point = point;
+    this.team = teamid;
+  }
+}
+
+class PointProto{
+  constructor(xPoint,yPoint){
+    this.x = xPoint;
+    this.y = zPoint;
+  }
+}
+
 class Team {
   constructor(cityname) {
     this.teamId = cityname;
@@ -76,7 +110,7 @@ class Track {
     }
   }
 
-  sendOver() {
+  sendOver(screenUuid) {
     for(let i = 0; i < this.screens.length(); i++) {
       myServer.DisplaySocket.sendOver(screens[i]);
     }
@@ -307,7 +341,11 @@ class GameSession {
 
   end(result){
     clearInterval(this.gameInterval);
-    myServer.displaySocket.sendOver(displayUuids);
+    myServer.displaySocket.broadcastOver();
+    this.gameInterval.setTimeout(function () {
+        this.gameManager.newGame();
+    }, 60000);
+    clearTimeout(this.gameInterval);
     delete this;
   }
 }
