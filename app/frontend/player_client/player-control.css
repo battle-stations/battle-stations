@@ -1,14 +1,14 @@
 
 .control{
-    display: inline-block;
-    border:0;
-    opacity: 0.3;
-  	border: solid 1px #618685;
-    font-size: 10rem;
-    font-weight: bold;
+  display: inline-block;
+  border:0;
+  opacity: 0.3;
+  border: solid 1px #618685;
+  font-size: 10rem;
+  font-weight: bold;
 }
 .control:active {
-	-webkit-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
+  -webkit-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
 	-moz-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
 	box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
   opacity: 0.3;
