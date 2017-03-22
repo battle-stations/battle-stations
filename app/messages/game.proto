@@ -33,15 +33,26 @@ message Game {
   repeated RoundPoints round_points = 1;
 }
 
+message GameStatistics {
+  Team winner = 1;
+  repeated ClicksPerTeam clicks_per_team = 2;
+  uint32 max_players = 3;
+}
+
+message ClicksPerTeam {
+  Team team = 1;
+  uint32 clicks = 2;
+}
+
 message Token {
   string token = 1;
 }
 
 message Status {
-  sint32 number = 1;
+  uint32 number = 1;
 }
 
 message Error {
-  sint32 number = 1;
+  uint32 number = 1;
   string message = 2;
 }

@@ -49,7 +49,7 @@ class DisplaySocket {
           break;
         case 'OVR':
           if(this.status === 1 || this.status === 2) {
-            this.onOver();
+            this.onOver(GameSerialization.GameStatistics.decode(decoded.message));
             this.status = 3;
             this._socket.send(GameSerialization.encodeMessage('ACK', 'Status', {number: this.status}));
           } else {
@@ -102,7 +102,7 @@ class DisplaySocket {
 
   onToken(message) {}
   onCurrentGame(message) {}
-  onOver() {}
+  onOver(message) {}
   onUpdate(message) {}
   onIncomingTrain() {}
   onNew() {}
