@@ -215,6 +215,7 @@ class GameSession {
         const teamPoint2 = TeamPointProto(point2, that.teamTwo.teamId);
         const roundPoint = RoundPointProto([teamPoint1,teamPoint2]);
         this.gameProto.addRoundPoint(roundPoint);
+        myServer.DisplaySocket.broadcastUpdate(roundPoint);
         let result = that.detectCollision();
         if (result < 0) {
           that.end(result);
