@@ -94,19 +94,15 @@ class Track {
   };
 
   addScreen(screenUuid){
+    const game = this.station.team.currentGame.gameProto;
     this.screens.push(screenUuid);
+    myServer.DisplaySocket.sendGame(screenUuid, game);
   }
 
   generateToken() {
     let token = this.station.team.teamId + "_" + this.station.stationId + "_" + this.trackId;
     for(let i = 0; i < this.screens.length(); i++) {
       myServer.DisplaySocket.sendToken(screens[i], token);
-    }
-  }
-
-  sendGame(game) {
-    for(let i = 0; i < this.screens.length(); i++) {
-      myServer.DisplaySocket.sendGame(screens[i], game);
     }
   }
 
@@ -139,7 +135,7 @@ class TeamManager {
 }
 
 class GameSession {
-  constructor(gameId, sizeX, sizeY, gameManager){
+  constructor(gameId, sizeX, sizeY, gameManager, gameProto){
     this.gameManager = gameManager;
     this.gameId = gameId;
     this.interval = 40;
@@ -154,6 +150,7 @@ class GameSession {
     this.sizeX = sizeX;
     this.sizeY = sizeY;
     this.gameInterval = 0;
+    this.gameProto = gameProto;
   }
 
   updatePosition(team) {
@@ -206,23 +203,18 @@ class GameSession {
     this.teamOneY.push(Math.round(Math.random() * this.sizeY));
     this.teamTwoX.push(Math.round(Math.random() * this.sizeX));
     this.teamTwoY.push(Math.round(Math.random() * this.sizeY));
-    const game = 0;
-    //TODO DEFINE GAME
+    myServer.DisplaySocket.broadcastNew();
     const teamOne = this.gameManager.teamOne;
     const teamTwo = this.gameManager.teamTwo;
-    for(let i=0; i < teamOne.stations.length; i++){
-      for(let s=0; s < teamOne.stations[i].tracks.length; s++){
-        teamOne.stations[i].tracks[s].sendGame(game);
-      }
-    }
-    for(let i=0; i < teamTwo.stations.length; i++){
-      for(let s=0; s < teamTwo.stations[i].tracks.length; s++){
-        teamTwo.stations[i].tracks[s].sendGame(game);
-      }
-    }
     this.gameInterval = timer.setInterval(function() {
         that.updatePosition(1);
         that.updatePosition(2);
+        const point1 = PointProto(that.teamOneX[that.teamOneX.length-1],that.teamOneY[that.teamOneY.length-1]);
+        const point2 = PointProto(that.teamTwoX[that.teamTwoX.length-1],that.teamTwoY[that.teamTwoY.length-1]);
+        const teamPoint1 = TeamPointProto(point1, that.teamOne.teamId);
+        const teamPoint2 = TeamPointProto(point2, that.teamTwo.teamId);
+        const roundPoint = RoundPointProto([teamPoint1,teamPoint2]);
+        this.gameProto.addRoundPoint(roundPoint);
         let result = that.detectCollision();
         if (result < 0) {
           that.end(result);
@@ -341,7 +333,7 @@ class GameSession {
 
   end(result){
     clearInterval(this.gameInterval);
-    myServer.displaySocket.broadcastOver();
+    myServer.DisplaySocket.broadcastOver();
     this.gameInterval.setTimeout(function () {
         this.gameManager.newGame();
     }, 60000);
@@ -395,8 +387,8 @@ class GameManager {
 
   newGame(){
     this.gameId = shortid.generate();
-    let protoGame = [];
-    let game = new GameSession(this.gameId, this.sizeX, this.sizeY, this);
+    const protoGame = GameProto();
+    let game = new GameSession(this.gameId, this.sizeX, this.sizeY, this, protoGame);
     this.teamOne.setCurrentGame(game, 1);
     this.teamTwo.setCurrentGame(game, 2);
     this.currentGame = game;
