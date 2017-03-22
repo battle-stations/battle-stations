@@ -100,11 +100,21 @@ class DisplaySocket {
     }
   }
 
-  onToken(message) {}
-  onCurrentGame(message) {}
-  onOver() {}
-  onUpdate(message) {}
-  onIncomingTrain() {}
+  onToken(message) {
+    showToken(message);
+  }
+  onCurrentGame(message) {
+    console.log('CGN', message);
+  }
+  onOver() {
+    console.log('OVR');
+  }
+  onUpdate(message) {
+    console.log('UDT', message);
+  }
+  onIncomingTrain() {
+    console.log('ITN', message);
+  }
   onNew() {}
   onOutgoingTrain() {}
 
@@ -210,4 +220,3 @@ class ControlSocket {
 // }
 
 // GameSerialization.whenReady(startSocket);
-
