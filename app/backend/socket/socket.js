@@ -58,10 +58,10 @@ class DisplaySocket extends events.EventEmitter {
     }
   }
 
-  sendOver(uuid) {
+  sendOver(uuid, gameStatistics) {
     let ws = this.clients[uuid];
     if(ws.status === 1) {
-      ws.send(GameSerialization.encodeMessage('OVR'));
+      ws.send(GameSerialization.encodeMessage('OVR', 'GameStatistics', gameStatistics));
     }
   }
 
@@ -74,11 +74,11 @@ class DisplaySocket extends events.EventEmitter {
     };
   }
 
-  broadcastOver() {
+  broadcastOver(gameStatistics) {
     for(let uuid in this.clients) {
       let ws = this.clients[uuid];
       if(ws.status === 2) {
-        ws.send(GameSerialization.encodeMessage('OVR'));
+        ws.send(GameSerialization.encodeMessage('OVR', 'GameStatistics', gameStatistics));
       }
     };
   }
@@ -194,12 +194,12 @@ class ControlSocket extends events.EventEmitter {
     this._changeAndSendStatus(ws, 3);
   }
 
-  _RDN(ws, decoded) {
+  _RUP(ws, decoded) {
     this.emit('rightUp', ws.uuid);
     this._changeAndSendStatus(ws, 1);
   }
 
-  _LDN(ws, decoded) {
+  _LUP(ws, decoded) {
     this.emit('leftUp', ws.uuid);
     this._changeAndSendStatus(ws, 1);
   }
