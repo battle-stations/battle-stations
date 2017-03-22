@@ -124,7 +124,7 @@ class ControlSocket {
       token: token
     };
 
-    this._socket = new WebSocket('ws://localhost:8080', 'display');
+    this._socket = new WebSocket('ws://localhost:8080', 'control');
     this._socket.binaryType = 'arraybuffer';
     this._socket.onopen = this._onOpen;
     this._socket.onmessage = (event) => {
