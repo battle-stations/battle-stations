@@ -30,7 +30,6 @@ class Engine {
 
     createSnake(x, y, color) {
         var newSnake = new Snake(x, y, color, this.pixiApp.stage);
-        newSnake.addPoint(x + 1, y + 1);
         this.snakes.push(newSnake);
     }
 }
