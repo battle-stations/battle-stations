@@ -100,21 +100,11 @@ class DisplaySocket {
     }
   }
 
-  onToken(message) {
-    console.log('TKN', message);
-  }
-  onCurrentGame(message) {
-    console.log('CGN', message);
-  }
-  onOver() {
-    console.log('OVR');
-  }
-  onUpdate(message) {
-    console.log('UDT', message);
-  }
-  onIncomingTrain() {
-    console.log('ITN', message);
-  }
+  onToken(message) {}
+  onCurrentGame(message) {}
+  onOver() {}
+  onUpdate(message) {}
+  onIncomingTrain() {}
   onNew() {}
   onOutgoingTrain() {}
 
@@ -136,7 +126,7 @@ class ControlSocket {
 
     this._socket = new WebSocket('ws://localhost:8080', 'display');
     this._socket.binaryType = 'arraybuffer';
-    this._socket.onopen = this._onOpen;
+    this._socket.onopen = this._onOpen.bind(this);
     this._socket.onmessage = (event) => {
       let decoded = GameSerialization.decodeMessage(new Uint8Array(event.data));
 
@@ -220,3 +210,4 @@ class ControlSocket {
 // }
 
 // GameSerialization.whenReady(startSocket);
+
