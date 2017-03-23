@@ -12,17 +12,8 @@ class GameManager {
     this.running = false;
     this.teams = {};
     this.teamsConnected = 0;
-    this.game = {
-      roundPoints: []
-    };
-    this.gameStatistics = {
-      winner: {
-        city: ''
-      },
-      clicksPerTeam: clicksPerTeam,
-      maxPlayers: 0
-    };
-    this.frameInterval = null;
+    this._startGame();
+    this._endGame();
 
     this._mockTrainInterval = setInterval(this._incomingTrainMock.bind(this), trainTime);
 
