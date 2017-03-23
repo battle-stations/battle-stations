@@ -132,21 +132,22 @@ class GameManager {
       };
     } else {
       const lastRoundPoints = this.game.roundPoints[this.game.roundPoints.length-1].teamPoints;
+      let lastPoint;
       for(let i in lastRoundPoints) {
         if(lastRoundPoints[i].team.city == city) {
-          const lastPoint = lastRoundPoints[i];
+          lastPoint = lastRoundPoints[i];
           break;
         }
-        return {
-          point: {
-            x: lastPoint.x+1,
-            y: lastPoint.y+1
-          },
-          team: {
-            city: city
-          }
-        };
       }
+      return {
+        point: {
+          x: lastPoint.point.x+1,
+          y: lastPoint.point.y+1
+        },
+        team: {
+          city: city
+        }
+      };
     }
   }
 
