@@ -24,7 +24,7 @@ class DisplaySocket {
 
     this._socket = new WebSocket('ws://localhost:8080', 'display');
     this._socket.binaryType = 'arraybuffer';
-    this._socket.onopen = this._onOpen;
+    this._socket.onopen = this._onOpen.bind(this);
     this._socket.onmessage = (event) => {
       let decoded = GameSerialization.decodeMessage(new Uint8Array(event.data));
 
@@ -126,7 +126,7 @@ class ControlSocket {
 
     this._socket = new WebSocket('ws://localhost:8080', 'display');
     this._socket.binaryType = 'arraybuffer';
-    this._socket.onopen = this._onOpen;
+    this._socket.onopen = this._onOpen.bind(this);
     this._socket.onmessage = (event) => {
       let decoded = GameSerialization.decodeMessage(new Uint8Array(event.data));
 
