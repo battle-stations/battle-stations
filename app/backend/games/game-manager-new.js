@@ -38,9 +38,11 @@ class GameManager {
     this.game = {
       roundPoints: []
     };
+    this.snakeDirection = {};
     let clicksPerTeam = [];
     let cTeam = this._currentTeamArray();
     for(let i in cTeam) {
+      this.snakeDirection[cTeam[i]] = Math.floor(Math.random()*8)*45;
       clicksPerTeam.push({
         team: {
           city: cTeam[i]
@@ -172,10 +174,57 @@ class GameManager {
           break;
         }
       }
+
+      let directions = [0, 0, 0];
+      for(let i in this.clients[city]) {
+        directions[this.clients[city][i]]++;
+      }
+
+      if(directions[1] > directions[0] && directions[1] > directions[2]) {
+        this.snakeDirection[city] += 45;
+      } else if(directions[2] > directions[0]) {
+        this.snakeDirection[city] -= 45;
+      }
+      this.snakeDirection[city] = this.snakeDirection[city] % 360;
+
+      let x = lastPoint.point.x;
+      let y = lastPoint.point.y;
+
+      switch(this.snakeDirection[city]) {
+        case 0:
+          y -= 1;
+          break;
+        case 45:
+          x += 1;
+          y -= 1;
+          break;
+        case 90:
+          x += 1;
+          break;
+        case 135:
+          x += 1;
+          y += 1;
+          break;
+        case 180:
+          y += 1;
+          break;
+        case 225:
+          x -= 1;
+          y += 1;
+          break;
+        case 270:
+          x -= 1;
+          break;
+        case 315:
+          x -= 1;
+          y -= 1;
+          break;
+      }
+
       return {
         point: {
-          x: lastPoint.point.x+1,
-          y: lastPoint.point.y+1
+          x: x,
+          y: y
         },
         team: {
           city: city
