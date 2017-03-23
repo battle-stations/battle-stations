@@ -5,6 +5,7 @@ const timer = require('timers');
 let myServer = new ServerSocket();
 let players = {};
 
+
 class StatisticProto {
   constructor(winner, clicksPerTeam, maxPlayers) {
     this.winner = winner;
@@ -112,8 +113,8 @@ class Track {
 
   generateToken() {
     let token = this.station.team.teamId + "_" + this.station.stationId + "_" + this.trackId;
-    for(let i = 0; i < this.screens.length(); i++) {
-      myServer.displaySocket.sendToken(screens[i], token);
+    for(let i = 0; i < this.screens.length; i++) {
+      myServer.displaySocket.sendToken(this.screens[i], token);
     }
   }
 
@@ -404,13 +405,21 @@ class InputManager {
 }
 
 class GameManager {
-  constructor(teamOne, teamTwo){
+  constructor(){
     this.gameId = 0;
     this.currentGame = 0;
     this.sizeX = 300;
     this.sizeY = 300;
-    this.teamOne = teamOne;
-    this.teamTwo = teamTwo;
+    this.teamOne = 0;
+    this.teamTwo = 0;
+  }
+
+  addTeamOne(team){
+    this.teamOne = team;
+  }
+
+  addTeamTwo(team){
+    this.teamTwo = team;
   }
 
   newGame(){
@@ -432,6 +441,18 @@ class GameManager {
     //myServer.DisplaySocket.sendOver(displayUuid);
   }
 }
+
+let teamManager = new TeamManager();
+teamManager.addTeam("Muenchen");
+teamManager.teams["Muenchen"].addStation("Hauptbahnhof");
+teamManager.teams["Muenchen"].stations["Hauptbahnhof"].addTrack(1);
+teamManager.teams["Muenchen"].stations["Hauptbahnhof"].addTrack(2);
+teamManager.teams["Muenchen"].addStation("Marienplatz");
+teamManager.teams["Muenchen"].stations["Marienplatz"].addTrack(1);
+teamManager.teams["Muenchen"].stations["Marienplatz"].addTrack(2);
+const gameManager = new GameManager();
+gameManager.addTeamOne(teamManager.teams["Muenchen"])
+let game = 0;
 
 
 myServer.controlSocket.on('join',(uuid, token) => {
@@ -526,22 +547,17 @@ myServer.controlSocket.on('disconnect',(uuid) => {
   delete players[uuid];
 });
 
-let teamManager = new TeamManager();
-teamManager.addTeam("Stuttgart");
-teamManager.teams["Stuttgart"].addStation("Stadtmitte");
-teamManager.teams["Stuttgart"].stations["Stadtmitte"].addTrack(1);
-teamManager.teams["Stuttgart"].stations["Stadtmitte"].addTrack(2);
-teamManager.teams["Stuttgart"].addStation("Feuersee");
-teamManager.teams["Stuttgart"].stations["Feuersee"].addTrack(1);
-teamManager.teams["Stuttgart"].stations["Feuersee"].addTrack(2);
-teamManager.addTeam("Muenchen");
-teamManager.teams["Muenchen"].addStation("Hauptbahnhof");
-teamManager.teams["Muenchen"].stations["Hauptbahnhof"].addTrack(1);
-teamManager.teams["Muenchen"].stations["Hauptbahnhof"].addTrack(2);
-teamManager.teams["Muenchen"].addStation("Marienplatz");
-teamManager.teams["Muenchen"].stations["Marienplatz"].addTrack(1);
-teamManager.teams["Muenchen"].stations["Marienplatz"].addTrack(2);
-const gameManager = new GameManager(teamManager.teams["Stuttgart"], teamManager.teams["Muenchen"]);
-const game = gameManager.newGame();
-game.end(-1);
-console.log(game);
+myServer.displaySocket.on('join', (uuid,track) => {
+  teamManager.addTeam(track.station.team.city);
+  teamManager.teams[track.station.team.city].addStation(track.station.name);
+  teamManager.teams[track.station.team.city].stations[track.station.name].addTrack(track.number);
+  console.log(teamManager.teams[track.station.team.city].stations[track.station.name]);
+  teamManager.teams[track.station.team.city].stations[track.station.name].tracks[track.number].addScreen(uuid);
+  teamManager.teams[track.station.team.city].stations[track.station.name].tracks[track.number].generateToken();
+  gameManager.addTeamTwo(teamManager.teams[track.station.team.city]);
+  game = gameManager.newGame();
+});
+
+
+
+

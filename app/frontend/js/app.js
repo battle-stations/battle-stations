@@ -8,11 +8,13 @@ function main() {
     engine = new Engine(container, 800, 600);
     engine.init();
 
-    //socket = new DisplaySocket("Stuttgart", 1, 2);
+    socket = new DisplaySocket("Stuttgart", "Stadmitte", 2);
+    socket.onToken = showToken;
 }
 
 function showToken(token) {
-	$("#tokenHolder").html(token);
+	console.log(token.token);
+	$("#tokenHolder").html(token.token);
 }
 
 function pauseGame() {
@@ -31,4 +33,6 @@ function createPlayer(data) {
 }
 
 
-window.onload = main;
+window.onload = () => {
+	GameSerialization.whenReady(main);
+};
