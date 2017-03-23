@@ -12,6 +12,10 @@ class GameManager {
     this.running = false;
     this.teams = {};
     this.teamsConnected = 0;
+    this.game = {
+      roundPoints: []
+    };
+    this.frameInterval = null;
 
     this._mockTrainInterval = setInterval(this._incomingTrainMock.bind(this), trainTime);
 
