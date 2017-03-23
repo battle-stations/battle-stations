@@ -1,8 +1,8 @@
 const ServerSocket = require('../socket/socket');
 
 const frames = 25;
-const trainTime = 40000;
-const trainStayTiem = 5000;
+const trainTime = 10000;
+const trainStayTime = 5000;
 
 class GameManager {
   constructor() {
