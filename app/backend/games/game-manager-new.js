@@ -98,6 +98,12 @@ class GameManager {
     });
   }
 
+  _initControlSocket() {
+    this.server.controlSocket.on('join', (uuid, token) => {
+
+    });
+  }
+
   _createFrame() {
     let roundPoints = {
       teamPoints: []
@@ -114,7 +120,6 @@ class GameManager {
   }
 
   _calculatePoints(city) {
-    console.log(this.game.roundPoints);
     if(this.game.roundPoints.length === 0) {
       return {
         point: {
@@ -126,7 +131,7 @@ class GameManager {
         }
       };
     } else {
-      const lastRoundPoints = this.game.roundPoints[this.game.roundPoints.length-1];
+      const lastRoundPoints = this.game.roundPoints[this.game.roundPoints.length-1].teamPoints;
       for(let i in lastRoundPoints) {
         if(lastRoundPoints[i].team.city == city) {
           const lastPoint = lastRoundPoints[i];
