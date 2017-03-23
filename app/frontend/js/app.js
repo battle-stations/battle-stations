@@ -76,8 +76,16 @@ function endGame(message) {
 		$("#overlay").show();
 	//}
 
+	let clicks = 1;
+
+	if(message.clicksPerTeam == undefined || message.clicksPerTeam.length < 2) {
+		message.clicksPerTeam = [];
+	} else {
+		clicks = message.clicksPerTeam[0].clicks > message.clicksPerTeam[1].clicks ? message.clicksPerTeam[0].clicks : message.clicksPerTeam[1].clicks; 
+	}
+
 	$("#winner").text(message.loser.city);
-	$("#clicksPerTeam").text(message.clicksPerTeam ? message.clicksPerTeam[0].clicks : 0);
+	$("#clicksPerTeam").text(clicks);
 	$("#maxPlayers").text(message.maxPlayers);
 	engine.clear();
 }
