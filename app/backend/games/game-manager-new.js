@@ -15,9 +15,13 @@ class GameManager {
     this._startGame();
     this._endGame();
 
+    this.clients = {};
+    this.playersConnected = 0;
+
     this._mockTrainInterval = setInterval(this._incomingTrainMock.bind(this), trainTime);
 
     this._initDisplaySocket();
+    this._initControlSocket();
   }
 
   _currentTeamArray() {
@@ -100,7 +104,36 @@ class GameManager {
 
   _initControlSocket() {
     this.server.controlSocket.on('join', (uuid, token) => {
+      let cClients = this.clients[this.server.controlSocket.clients[uuid].track.station.team.city];
+      if(cClients == null) {
+        cClients = {};
+      }
+      cClients[uuid] = 0;
+      this.playersConnected++;
+      if(this.playersConnected > this.gameStatistics.maxPlayers) {
+        this.gameStatistics.maxPlayers = this.playersConnected;
+      }
+    });
 
+    this.server.controlSocket.on('rightDown', (uuid) => {
+      this.clients[this.server.controlSocket.clients[uuid].track.station.team.city][uuid] = 1;
+    });
+
+    this.server.controlSocket.on('leftDown', (uuid) => {
+      this.clients[this.server.controlSocket.clients[uuid].track.station.team.city][uuid] = 2;
+    });
+
+    this.server.controlSocket.on('rightUp', (uuid) => {
+      this.clients[this.server.controlSocket.clients[uuid].track.station.team.city][uuid] = 0;
+    });
+
+    this.server.controlSocket.on('leftUp', (uuid) => {
+      this.clients[this.server.controlSocket.clients[uuid].track.station.team.city][uuid] = 0;
+    });
+
+    this.server.controlSocket.on('disconnect', (uuid) => {
+      delete this.clients[this.server.controlSocket.clients[uuid].track.station.team.city][uuid];
+      this.playersConnected--;
     });
   }
 

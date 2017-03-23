@@ -180,7 +180,18 @@ class ControlSocket extends events.EventEmitter {
   }
 
   _JIN(ws, decoded) {
-    this.emit('join', ws.uuid, GameSerialization.Token.decode(decoded.message));
+    let token = GameSerialization.Token.decode(decoded.message);
+    let tokenArray = token.split('_');
+    ws.track = {
+      number: parseInt(tokenArray[2]),
+      station: {
+        name: tokenArray[1],
+        team: {
+          city: tokenArray[0]
+        }
+      }
+    };
+    this.emit('join', ws.uuid, );
     this._changeAndSendStatus(ws, 1);
   }
 
