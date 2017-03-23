@@ -96,9 +96,9 @@ class GameManager {
       }
     });
 
-    this.server.displaySocket.on('disconnect', (uuid) => {
-      this.teams[this.server.displaySocket.clients[uuid].track.station.team.city]--;
-      if(this.teams[this.server.displaySocket.clients[uuid].track.station.team.city] < 1) {
+    this.server.displaySocket.on('disconnect', (uuid, track) => {
+      this.teams[track.station.team.city]--;
+      if(this.teams[track.station.team.city] < 1) {
         this.teamsConnected--;
       }
 
@@ -147,8 +147,8 @@ class GameManager {
       this.clients[this.server.controlSocket.clients[uuid].track.station.team.city][uuid] = 0;
     });
 
-    this.server.controlSocket.on('disconnect', (uuid) => {
-      delete this.clients[this.server.controlSocket.clients[uuid].track.station.team.city][uuid];
+    this.server.controlSocket.on('disconnect', (uuid, track) => {
+      delete this.clients[track.station.team.city][uuid];
       this.playersConnected--;
     });
   }
@@ -222,7 +222,7 @@ class GameManager {
       } else if(directions[2] > directions[0]) {
         this.snakeDirection[city] -= 45;
       }
-      this.snakeDirection[city] = this.snakeDirection[city] % 360;
+      this.snakeDirection[city] = (this.snakeDirection[city] % 360 < 0) ? 360 + this.snakeDirection[city] % 360 : this.snakeDirection[city] % 360;
 
       let x = lastPoint.point.x;
       let y = lastPoint.point.y;

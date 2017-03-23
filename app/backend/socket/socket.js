@@ -38,7 +38,8 @@ class DisplaySocket extends events.EventEmitter {
     });
 
     ws.on('close', () => {
-      this.emit('disconnect', ws.uuid);
+      delete this.clients[ws.uuid];
+      this.emit('disconnect', ws.uuid, ws.track);
     });
   }
 
@@ -176,6 +177,11 @@ class ControlSocket extends events.EventEmitter {
           ws.send(GameSerialization.encodeError(1));
           break;
       }
+    });
+
+    ws.on('close', () => {
+      delete this.clients[ws.uuid];
+      this.emit('disconnect', ws.uuid, ws.track);
     });
   }
 
