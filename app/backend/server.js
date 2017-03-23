@@ -20,9 +20,9 @@ app.use(cookieParser());
 
 //Setup static delivery files
 app.use(express.static(path.join(__dirname, '../frontend')));
+app.use('/messages', express.static(path.join(__dirname, '../messages')));
 app.use('/graphic_framework', express.static(path.join(__dirname, '../node_modules/pixi.js/dist')));
 app.use('/bootstrap', express.static(path.join(__dirname, '../node_modules/bootstrap/dist')));
-app.use('/messages', express.static(path.join(__dirname, '../messages')));
 app.use('/jquery', express.static(path.join(__dirname, '../node_modules/jquery/dist')));
 
 
