@@ -155,10 +155,16 @@ class GameManager {
     this.server.displaySocket.broadcastUpdate(roundPoints);
   }
 
-  _checkCollision(point) {
+  _checkCollision(teamPoint) {
     for(let i in this.game.roundPoints) {
-      for(let j in this.game.roundPoints[i]) {
-        // if(point.x this.game.roundPoints[i][j].x )
+      for(let j in this.game.roundPoints[i].teamPoints) {
+        if(teamPoint.team.city != this.game.roundPoints[i].teamPoints[j].team.city ||
+          this.game.roundPoints[i].length - 10 < i) {
+          if(Math.abs(teamPoint.point.x - this.game.roundPoints[i].teamPoints[j].point.x) < 4 &&
+            Math.abs(teamPoint.point.y - this.game.roundPoints[i].teamPoints[j].point.y) < 4) {
+              this._endGame();
+          }
+        }
       }
     }
   }
@@ -232,8 +238,8 @@ class GameManager {
 
       return {
         point: {
-          x: x % width,
-          y: y % height
+          x: (x % width < 0) ? width + (x % width) : x % width,
+          y: (y % height < 0) ? height + (y % height) : y % height
         },
         team: {
           city: city
