@@ -59,7 +59,7 @@ class GameSerialization {
 
 GameSerialization.initialized = false;
 
-protobuf.load("messages/game.proto", (err, root) => {
+protobuf.load("../../messages/game.proto", (err, root) => {
   if (err) throw err;
 
   GameSerialization.Point = root.lookup('game.Point');
@@ -69,6 +69,8 @@ protobuf.load("messages/game.proto", (err, root) => {
   GameSerialization.TeamPoint = root.lookup('game.TeamPoint');
   GameSerialization.RoundPoints = root.lookup('game.RoundPoints');
   GameSerialization.Game = root.lookup('game.Game');
+  GameSerialization.GameStatistics = root.lookup('game.GameStatistics');
+  GameSerialization.ClicksPerTeam = root.lookup('game.ClicksPerTeam');
   GameSerialization.Token = root.lookup('game.Token');
   GameSerialization.Status = root.lookup('game.Status');
   GameSerialization.Error = root.lookup('game.Error');
