@@ -22,7 +22,8 @@ function main() {
 
 function setToken(token) {
 	console.log("onToken", token.token);
-	$("#token").text(token.token);
+	let tokenUrl = 'http://<host>:<port>/player-control.html?token=' + token.token;
+	$("#token").text(tokenUrl);
 }
 
 function update(update) {
@@ -61,11 +62,6 @@ function setCurrentGame(game) {
     }
 }
 
-function showToken(token) {
-	console.log(token.token);
-	$("#tokenHolder").html(token.token);
-}
-
 function togglePause() {
 	console.log('Train incomig!!!!');
 	$("#pauseModal").toggle();
@@ -75,15 +71,14 @@ function togglePause() {
 function endGame(message) {
 	console.log('OnOver', message);
 
-	if(!firstOnOver) {
+	//if(!firstOnOver) {
 		$("#endModal").show();
 		$("#overlay").show();
-		firstOnOver = false;
-	}
+	//}
 
 	$("#winner").text(message.loser.city);
-	$("#clicksPerTeam").text(Math.floor(Math.random() * 1000));
-	$("#maxPlayers").text(message.max_players);
+	$("#clicksPerTeam").text(message.clikcsPerTeam ? message.clicksPerTeam[0].clicks : 0);
+	$("#maxPlayers").text(message.maxPlayers);
 	engine.clear();
 }
 
