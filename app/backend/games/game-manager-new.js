@@ -7,6 +7,8 @@ class GameManager {
       roundPoints: []
     }
 
+    setInterval(this._createFrame().bind(this), 40);
+
     this._initDisplaySocket();
   }
 
@@ -18,6 +20,10 @@ class GameManager {
     this.server.displaySocket.on('gameState', (uuid) => {
       this.server.displaySocket.sendGame(this.game);
     });
+  }
+
+  _createFrame() {
+    
   }
 }
 
