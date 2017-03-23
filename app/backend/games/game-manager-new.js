@@ -3,6 +3,7 @@ const ServerSocket = require('../socket/socket');
 const frames = 25;
 const trainTime = 10000;
 const trainStayTime = 5000;
+const startNewGameTime = 10000;
 const width = 800;
 const height = 600;
 
@@ -35,37 +36,40 @@ class GameManager {
   }
 
   _startGame() {
-    this.game = {
-      roundPoints: []
-    };
-    this.snakeDirection = {};
-    let clicksPerTeam = [];
-    let cTeam = this._currentTeamArray();
-    for(let i in cTeam) {
-      this.snakeDirection[cTeam[i]] = Math.floor(Math.random()*8)*45;
-      clicksPerTeam.push({
-        team: {
-          city: cTeam[i]
+    if(!this.running && this.teamsConnected > 1) {
+      this.game = {
+        roundPoints: []
+      };
+      this.snakeDirection = {};
+      let clicksPerTeam = [];
+      let cTeam = this._currentTeamArray();
+      for(let i in cTeam) {
+        this.snakeDirection[cTeam[i]] = Math.floor(Math.random()*8)*45;
+        clicksPerTeam.push({
+          team: {
+            city: cTeam[i]
+          },
+          clicks: 0
+        });
+      }
+      this.gameStatistics = {
+        loser: {
+          city: ''
         },
-        clicks: 0
-      });
+        clicksPerTeam: clicksPerTeam,
+        maxPlayers: 0
+      };
+      this.running = true;
+      this.server.displaySocket.broadcastNew();
+      this.frameInterval = setInterval(this._createFrame.bind(this), 1000/frames);
     }
-    this.gameStatistics = {
-      loser: {
-        city: ''
-      },
-      clicksPerTeam: clicksPerTeam,
-      maxPlayers: 0
-    };
-    this.running = true;
-    this.server.displaySocket.broadcastNew();
-    this.frameInterval = setInterval(this._createFrame.bind(this), 1000/frames);
   }
 
   _endGame() {
     clearInterval(this.frameInterval);
     this.server.displaySocket.broadcastOver(this.gameStatistics);
     this.running = false;
+    setTimeout(this._startGame.bind(this), startNewGameTime);
   }
 
   _initDisplaySocket() {
@@ -77,9 +81,7 @@ class GameManager {
         this.teams[track.station.team.city]++;
       }
 
-      if(!this.running && this.teamsConnected > 1) {
-        this._startGame();
-      }
+      this._startGame();
 
       this.server.displaySocket.sendToken(uuid, `${track.station.team.city}_${track.station.name}_${track.number}`);
     });
@@ -104,6 +106,14 @@ class GameManager {
     });
   }
 
+  _countClicks(uuid) {
+    for(let i in this.gameStatistics.clicksPerTeam) {
+      if(this.gameStatistics.clicksPerTeam[i].team.city == this.server.controlSocket.clients[uuid].track.station.team.city) {
+        this.gameStatistics.clicksPerTeam[i].clicks++;
+      }
+    }
+  }
+
   _initControlSocket() {
     this.server.controlSocket.on('join', (uuid, token) => {
       if(this.clients[this.server.controlSocket.clients[uuid].track.station.team.city] == null) {
@@ -117,10 +127,13 @@ class GameManager {
     });
 
     this.server.controlSocket.on('rightDown', (uuid) => {
+      this._countClicks(uuid);  
       this.clients[this.server.controlSocket.clients[uuid].track.station.team.city][uuid] = 1;
     });
 
     this.server.controlSocket.on('leftDown', (uuid) => {
+      
+      this._countClicks(uuid);
       this.clients[this.server.controlSocket.clients[uuid].track.station.team.city][uuid] = 2;
     });
 
