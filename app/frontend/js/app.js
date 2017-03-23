@@ -1,6 +1,7 @@
 let engine = null;
 let socket = null;
 let container = null;
+let firstOnOver = true;
 
 function main() {
     console.log("App.js started!");
@@ -16,10 +17,11 @@ function main() {
     socket.onNew = setCurrentGame;
     socket.onIncomingTrain = togglePause;
     socket.onOutgoingTrain = togglePause;
+    socket.onOver = endGame;
 }
 
 function setToken(token) {
-	console.log(token.token);
+	console.log("onToken", token.token);
 	$("#token").text(token.token);
 }
 
@@ -35,9 +37,13 @@ function update(update) {
 }
 
 function setCurrentGame(game) {
-	console.log(game);
+	console.log('OnGame', game);
+
 	engine.clear();
     engine.init();
+
+    $("#endModal").hide();
+	$("#overlay").hide();
 
     engine.createSnake(400, 300, 0x1133ff);
     engine.createSnake(400, 300, 0xff3300);
@@ -66,13 +72,18 @@ function togglePause() {
 	$("#overlay").toggle();
 }
 
-function endGame() {
-	$("#endModal").show();
-	$("#overlay").show();
+function endGame(message) {
+	console.log('OnOver', message);
 
-	$("#winner").text(Math.floor(Math.random() * 2));
+	if(!firstOnOver) {
+		$("#endModal").show();
+		$("#overlay").show();
+		firstOnOver = false;
+	}
+
+	$("#winner").text(message.loser.city);
 	$("#clicksPerTeam").text(Math.floor(Math.random() * 1000));
-	$("#maxPlayers").text(Math.floor(Math.random() * 5));
+	$("#maxPlayers").text(message.max_players);
 	engine.clear();
 }
 

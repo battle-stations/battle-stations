@@ -1,7 +1,7 @@
 const ServerSocket = require('../socket/socket');
 
 const frames = 25;
-const trainTime = 10000;
+const trainTime = 40000;
 const trainStayTime = 5000;
 const width = 800;
 const height = 600;
