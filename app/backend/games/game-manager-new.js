@@ -1,5 +1,9 @@
 const ServerSocket = require('../socket/socket');
 
+const frames = 25;
+const trainTime = 40000;
+const trainStayTiem = 5000;
+
 class GameManager {
   constructor() {
     this.server = new ServerSocket();
@@ -8,7 +12,9 @@ class GameManager {
     }
     this.teams = {};
 
-    setInterval(this._createFrame.bind(this), 40);
+    setInterval(this._createFrame.bind(this), 1000/frames);
+
+    setInterval(this._incomingTrainMock.bind(this), trainTime);
 
     this._initDisplaySocket();
   }
@@ -53,6 +59,37 @@ class GameManager {
         city: city
       }
     };
+  }
+
+  _incomingTrainMock() {
+    let teams = [];
+    for(let i in this.teams) {
+      if(this.teams[i] > 0) {
+        teams.push(i);
+      }
+    }
+    const theTeam = teams[Math.floor(Math.random()*teams.length)];
+    const track = {
+      number: 1,
+      station: {
+        name: 'Stadtmitte',
+        team: {
+          city: theTeam
+        }
+      }
+    };
+
+    this.incomingTrain(track);
+
+    setTimeout(this.outgoingTrain.bind(this, track), trainStayTime);
+  }
+
+  incomingTrain(track) {
+    this.server.displaySocket.broadcastTrackIncoming(track);
+  }
+
+  outgoingTrain(track) {
+    this.server.displaySocket.broadcastTrackOutgoing(track);
   }
 }
 
