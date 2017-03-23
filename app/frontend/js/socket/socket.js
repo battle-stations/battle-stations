@@ -49,7 +49,7 @@ class DisplaySocket {
           break;
         case 'OVR':
           if(this.status === 1 || this.status === 2) {
-            this.onOver(GameSerialization.GameStatistics.decode(decoded.message));
+            this.onOver();
             this.status = 3;
             this._socket.send(GameSerialization.encodeMessage('ACK', 'Status', {number: this.status}));
           } else {
@@ -102,7 +102,7 @@ class DisplaySocket {
 
   onToken(message) {}
   onCurrentGame(message) {}
-  onOver(message) {}
+  onOver() {}
   onUpdate(message) {}
   onIncomingTrain() {}
   onNew() {}
@@ -124,7 +124,7 @@ class ControlSocket {
       token: token
     };
 
-    this._socket = new WebSocket('ws://localhost:8080', 'control');
+    this._socket = new WebSocket('ws://localhost:8080', 'display');
     this._socket.binaryType = 'arraybuffer';
     this._socket.onopen = this._onOpen;
     this._socket.onmessage = (event) => {
@@ -210,3 +210,4 @@ class ControlSocket {
 // }
 
 // GameSerialization.whenReady(startSocket);
+
