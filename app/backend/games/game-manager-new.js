@@ -11,9 +11,11 @@ class GameManager {
   constructor() {
     this.server = new ServerSocket();
     this.running = false;
+    this.startup = true;
     this.teams = {};
     this.teamsConnected = 0;
     this._startGame();
+    this.startup = false;
     this._endGame();
 
     this.clients = {};
@@ -36,7 +38,7 @@ class GameManager {
   }
 
   _startGame() {
-    if(!this.running && this.teamsConnected > 1) {
+    if(this.startup || (!this.running && this.teamsConnected > 1)) {
       this.game = {
         roundPoints: []
       };
