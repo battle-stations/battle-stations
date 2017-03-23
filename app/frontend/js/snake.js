@@ -4,7 +4,7 @@ class Snake {
         this.color = color;
         this.parentStage = stage;
         this.graphics = new PIXI.Graphics();
-        this.addPoint(x, y);
+        //this.addPoint(x, y);
     }
 
     addPoint(x, y) {

@@ -2,8 +2,6 @@ let engine = null;
 let socket = null;
 let container = null;
 
-let count = 0, inc = -2;
-
 function main() {
     console.log("App.js started!");
 
@@ -27,14 +25,13 @@ function setToken(token) {
 
 function update(update) {
 	//console.log('UPT', update);
-	count += inc;
 
 	let updatePlayerOne = update.teamPoints[0].point;
 	let updatePlayerTwo = (update.teamPoints.length > 1) ? update.teamPoints[1].point : null;
 
 	//console.log('Drawing: ', updatePlayerOne.y + count);
-	engine.snakes[0].addPoint(updatePlayerOne.x + count, updatePlayerOne.y + count);
-	if(updatePlayerTwo) engine.snakes[1].addPoint(updatePlayerTwo.x + 100, updatePlayerTwo.y + count);
+	engine.snakes[0].addPoint(updatePlayerOne.x, updatePlayerOne.y);
+	if(updatePlayerTwo) engine.snakes[1].addPoint(updatePlayerTwo.x, updatePlayerTwo.y);
 }
 
 function setCurrentGame(game) {
@@ -54,10 +51,16 @@ function showToken(token) {
 function togglePause() {
 	console.log('Train incomig!!!!');
 	$("#pauseModal").toggle();
+	$("#overlay").toggle();
 }
 
 function endGame() {
 	$("#endModal").show();
+	$("#overlay").show();
+
+	$("#winner").text(Math.floor(Math.random() * 2));
+	$("#clicksPerTeam").text(Math.floor(Math.random() * 1000));
+	$("#maxPlayers").text(Math.floor(Math.random() * 5));
 	engine.clear();
 }
 
