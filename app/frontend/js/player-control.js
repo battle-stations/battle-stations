@@ -14,7 +14,7 @@ $(document).ready(function() {
   if(token == undefined)
     throw 'Enter token in url!';
 
-  let controlSocket = new ControlSocket(token);
+  controlSocket = new ControlSocket(token);
   setTeamName(token);  
   
 })
@@ -45,8 +45,12 @@ class ControlButton {
     if(!this.neighbor.ongoingTouch) {
       this.ongoingTouch = true;
       this.neighbor.htmlButton.disabled = true; 
-      
-      controlSocket["send" + this.direction + "Up"]();
+
+
+      if(this.direction == 'Right')
+        controlSocket.sendRightDown();
+      else if(this.direction == 'Left')
+        controlSocket.sendLeftDown();
     }
   };
   
@@ -54,8 +58,12 @@ class ControlButton {
     if (this.ongoingTouch) {
       this.ongoingTouch = false;
       this.neighbor.htmlButton.disabled = false;
+
+      if(this.direction == 'Right')
+        controlSocket.sendRightUp();
+      else if(this.direction == 'Left')
+        controlSocket.sendLeftUp();
       // $.controlSocket["send" + this.direction + "Down"]();
-      controlSocket["send" + this.direction + "Down"]();
     }
   }
 
