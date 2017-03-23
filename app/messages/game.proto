@@ -34,7 +34,7 @@ message Game {
 }
 
 message GameStatistics {
-  Team winner = 1;
+  Team loser = 1;
   repeated ClicksPerTeam clicks_per_team = 2;
   uint32 max_players = 3;
 }

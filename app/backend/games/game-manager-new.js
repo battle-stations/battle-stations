@@ -51,7 +51,7 @@ class GameManager {
       });
     }
     this.gameStatistics = {
-      winner: {
+      loser: {
         city: ''
       },
       clicksPerTeam: clicksPerTeam,
@@ -146,7 +146,13 @@ class GameManager {
     for(let i in this.teams) {
       if(this.teams[i] > 0) {
         let newPoint = this._calculatePoints(i);
-        this._checkCollision(newPoint);
+        if (this._checkCollision(newPoint)) {
+          this.gameStatistics.loser = {
+            city: newPoint.team.city
+          };
+          this._endGame();
+          return;
+        }
         roundPoints.teamPoints.push(newPoint);
       }
     }
@@ -162,11 +168,12 @@ class GameManager {
           this.game.roundPoints[i].length - 10 < i) {
           if(Math.abs(teamPoint.point.x - this.game.roundPoints[i].teamPoints[j].point.x) < 4 &&
             Math.abs(teamPoint.point.y - this.game.roundPoints[i].teamPoints[j].point.y) < 4) {
-              this._endGame();
+              return true;
           }
         }
       }
     }
+    return false;
   }
 
   _calculatePoints(city) {
