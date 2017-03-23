@@ -191,7 +191,7 @@ class ControlSocket extends events.EventEmitter {
         }
       }
     };
-    this.emit('join', ws.uuid, );
+    this.emit('join', ws.uuid, token);
     this._changeAndSendStatus(ws, 1);
   }
 
