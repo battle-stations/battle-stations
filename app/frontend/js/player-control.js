@@ -14,7 +14,7 @@ $(document).ready(function() {
   if(token == undefined)
     throw 'Enter token in url!';
 
-  let controlSocket = new ControlSocket();
+  let controlSocket = new ControlSocket(token);
   setTeamName(token);  
   
 })
