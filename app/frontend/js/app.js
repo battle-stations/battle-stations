@@ -41,6 +41,18 @@ function setCurrentGame(game) {
 
     engine.createSnake(400, 300, 0x1133ff);
     engine.createSnake(400, 300, 0xff3300);
+
+    if(game && game.roundPoints) {
+    	for(let i in game.roundPoints) {
+    		let currentRound = game.roundPoints[i];
+    		//console.log('CR: ', currentRound);
+    		for(let j in currentRound.teamPoints) {
+    			let currentTeam = currentRound.teamPoints[j];
+    			//console.log('CT: ', currentTeam);
+    			engine.snakes[j].addPoint(currentTeam.point.x, currentTeam.point.y);
+    		}
+    	} 
+    }
 }
 
 function showToken(token) {
