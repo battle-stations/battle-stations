@@ -106,11 +106,10 @@ class GameManager {
 
   _initControlSocket() {
     this.server.controlSocket.on('join', (uuid, token) => {
-      let cClients = this.clients[this.server.controlSocket.clients[uuid].track.station.team.city];
-      if(cClients == null) {
-        cClients = {};
+      if(this.clients[this.server.controlSocket.clients[uuid].track.station.team.city] == null) {
+        this.clients[this.server.controlSocket.clients[uuid].track.station.team.city] = {};
       }
-      cClients[uuid] = 0;
+      this.clients[this.server.controlSocket.clients[uuid].track.station.team.city][uuid] = 0;
       this.playersConnected++;
       if(this.playersConnected > this.gameStatistics.maxPlayers) {
         this.gameStatistics.maxPlayers = this.playersConnected;
@@ -157,7 +156,11 @@ class GameManager {
   }
 
   _checkCollision(point) {
-    
+    for(let i in this.game.roundPoints) {
+      for(let j in this.game.roundPoints[i]) {
+        // if(point.x this.game.roundPoints[i][j].x )
+      }
+    }
   }
 
   _calculatePoints(city) {
