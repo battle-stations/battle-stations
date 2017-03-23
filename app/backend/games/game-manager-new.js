@@ -21,6 +21,7 @@ class GameManager {
     this._mockTrainInterval = setInterval(this._incomingTrainMock.bind(this), trainTime);
 
     this._initDisplaySocket();
+    this._initControlSocket();
   }
 
   _currentTeamArray() {
