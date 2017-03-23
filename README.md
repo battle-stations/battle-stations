@@ -1,16 +1,16 @@
 # battle-stations
 
-#Overview
+## Overview
 We are doing a collaborative game. It is....
 
 
-#Architecure
+## Architecure
 - Backend: nodejs + express
 - Frontend: pixi.js (Graphics)
 
-#Team
+## Team
 - Simon: Frontend, Graphics
-- Dennis: Backend + Docker
+- Thomas: Backend + Docker
 - Marvin: Frontend + Communication
 - Sebastian: Backend
-- 
+- Laura: Frontend
