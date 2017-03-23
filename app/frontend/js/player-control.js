@@ -1,5 +1,4 @@
 
-let token = getToken();
 let controlSocket = null;
 
 $(document).ready(function() {
@@ -10,8 +9,13 @@ $(document).ready(function() {
   leftButton.setNeighborButton(rightButton);
   rightButton.setNeighborButton(leftButton);
 
-  let controlSocket = new ControlSocket(token);
-  setTeamName(token);
+  let token = window.location.search.split('=')[1];
+  console.log(token); 
+  if(token == undefined)
+    throw 'Enter token in url!';
+
+  let controlSocket = new ControlSocket();
+  setTeamName(token);  
   
 })
 
@@ -19,14 +23,6 @@ function setTeamName(token) {
   let splitToken = token.split("_");
   if (splitToken.length > 0) 
     $("#teamName").text(splitToken[0]);
-}
-
-function getToken() {
-  // let pathname = window.location.pathname;
-  // let res = pathname.split("/");
-  // let token = res[res.length - 1];
-  let token = "team_station_gleis";
-  return token;
 }
 
 class ControlButton {
