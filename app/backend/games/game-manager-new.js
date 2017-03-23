@@ -15,6 +15,13 @@ class GameManager {
     this.game = {
       roundPoints: []
     };
+    this.gameStatistics = {
+      winner: {
+        city: ''
+      },
+      clicksPerTeam: clicksPerTeam,
+      maxPlayers: 0
+    };
     this.frameInterval = null;
 
     this._mockTrainInterval = setInterval(this._incomingTrainMock.bind(this), trainTime);
@@ -47,7 +54,9 @@ class GameManager {
       });
     }
     this.gameStatistics = {
-      winner: {},
+      winner: {
+        city: ''
+      },
       clicksPerTeam: clicksPerTeam,
       maxPlayers: 0
     };
@@ -79,7 +88,11 @@ class GameManager {
     });
 
     this.server.displaySocket.on('gameState', (uuid) => {
-      this.server.displaySocket.sendGame(uuid, this.game);
+      if(this.running) {
+        this.server.displaySocket.sendGame(uuid, this.game);
+      } else {
+        this.server.displaySocket.sendOver(uuid, this.gameStatistics);
+      }
     });
 
     this.server.displaySocket.on('disconnect', (uuid) => {
