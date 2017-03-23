@@ -181,7 +181,7 @@ class ControlSocket extends events.EventEmitter {
 
   _JIN(ws, decoded) {
     let token = GameSerialization.Token.decode(decoded.message);
-    let tokenArray = token.split('_');
+    let tokenArray = token.token.split('_');
     ws.track = {
       number: parseInt(tokenArray[2]),
       station: {
