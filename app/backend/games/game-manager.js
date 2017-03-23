@@ -5,6 +5,21 @@ const timer = require('timers');
 let myServer = new ServerSocket();
 let players = {};
 
+class StatisticProto {
+  constructor(winner, clicksPerTeam, maxPlayers) {
+    this.winner = winner;
+    this.clicksPerTeam = clicksPerTeam;
+    this.maxPlayers = maxPlayers;
+  }
+}
+
+class ClicksPerTeamProto {
+  constructor(team, clicks){
+    this.team = team;
+    this.clicks = clicks;
+  }
+}
+
 class GameProto {
   constructor(roundPoints){
     this.roundPoints = roundPoints;
@@ -106,11 +121,11 @@ class Track {
     }
   }
 
-  sendOver(screenUuid) {
-    for(let i = 0; i < this.screens.length(); i++) {
-      myServer.DisplaySocket.sendOver(screens[i]);
-    }
-  }
+  //sendOver(screenUuid) {
+    //for(let i = 0; i < this.screens.length(); i++) {
+      //myServer.DisplaySocket.sendOver(screens[i]);
+    //}
+  //}
 }
 
 class Player {
@@ -324,7 +339,7 @@ class GameSession {
     s = 0;
     while(this.teamOneX.indexOf(currentX,s) != -1){
       if(this.teamOneY[this.teamOneX.indexOf(currentX,s)] == currentY){
-        return -2; //team One lost
+        return -2; //team Two lost
       }else{
         s = this.teamOneX.indexOf(currentX,s) + 1;
       }
@@ -334,12 +349,25 @@ class GameSession {
 
   end(result){
     clearInterval(this.gameInterval);
-    myServer.DisplaySocket.broadcastOver();
+    const statistic = this.sendStatistics(result);
+    myServer.DisplaySocket.broadcastOver(statistic);
     this.gameInterval.setTimeout(function () {
         this.gameManager.newGame();
     }, 60000);
     clearTimeout(this.gameInterval);
     delete this;
+  }
+
+  sendStatistics(result){
+    if(result == -1){
+      result = this.gameManager.teamTwo.teamId;
+    }else if(result == -2){
+      result = this.gameManager.teamOne.teamId;
+    }
+    const clicksTeam1 = ClicksPerTeamProto(this.gameManager.teamOne.teamId, this.inputManagerOne.clicksTeam1);
+    const clicksTeam2 = ClicksPerTeamProto(this.gameManager.teamTwo.teamId, this.inputManagerTwo.clicksTeam2);
+    const statistic = StatisticProto(result, [clicksTeam1, clicksTeam2], players.length);
+    return statistic;
   }
 }
 
@@ -347,6 +375,7 @@ class InputManager {
   constructor(){
     this.left = 0;
     this.right = 0;
+    this.clicks = 1;
   }
 
   getDirection(){
@@ -360,10 +389,12 @@ class InputManager {
   }
 
   increaseLeft(){
+    this.clicks += 1;
     this.left += 1;
   }
 
   increaseRight(){
+    this.clicks += 1;
     this.right += 1;
   }
 
@@ -402,7 +433,7 @@ class GameManager {
 
   finishCurrentGame(displayUuid){
     this.currentGame.end();
-    myServer.DisplaySocket.sendOver(displayUuid);
+    //myServer.DisplaySocket.sendOver(displayUuid);
   }
 }
 
