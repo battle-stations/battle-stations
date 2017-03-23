@@ -77,7 +77,7 @@ function endGame(message) {
 	//}
 
 	$("#winner").text(message.loser.city);
-	$("#clicksPerTeam").text(message.clikcsPerTeam ? message.clicksPerTeam[0].clicks : 0);
+	$("#clicksPerTeam").text(message.clicksPerTeam ? message.clicksPerTeam[0].clicks : 0);
 	$("#maxPlayers").text(message.maxPlayers);
 	engine.clear();
 }
