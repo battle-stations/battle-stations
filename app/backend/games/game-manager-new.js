@@ -146,12 +146,18 @@ class GameManager {
 
     for(let i in this.teams) {
       if(this.teams[i] > 0) {
-        roundPoints.teamPoints.push(this._calculatePoints(i));
+        let newPoint = this._calculatePoints(i);
+        this._checkCollision(newPoint);
+        roundPoints.teamPoints.push(newPoint);
       }
     }
 
     this.game.roundPoints.push(roundPoints);
     this.server.displaySocket.broadcastUpdate(roundPoints);
+  }
+
+  _checkCollision(point) {
+    
   }
 
   _calculatePoints(city) {
@@ -223,8 +229,8 @@ class GameManager {
 
       return {
         point: {
-          x: x,
-          y: y
+          x: x % width,
+          y: y % height
         },
         team: {
           city: city
