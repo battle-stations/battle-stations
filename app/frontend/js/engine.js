@@ -24,7 +24,8 @@ class Engine {
             this.snakes[i] = null;
         }
         this.snakes = [];
-        this.pixiApp.destroy();
+        if(this.pixiApp)
+            this.pixiApp.destroy();
     }
 
     createSnake(x, y, color) {

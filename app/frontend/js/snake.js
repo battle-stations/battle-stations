@@ -11,12 +11,10 @@ class Snake {
         var currentPoint = {x, y};
         this.points.push(currentPoint);
 
-        if(this.points.length < 2) {
-            this.graphics.lineStyle(5, this.color);
-            this.graphics.moveTo(currentPoint.x, currentPoint.y);
-        }
+        this.graphics.beginFill(this.color);
+        this.graphics.drawCircle(x, y, 3);
+        this.graphics.endFill();
 
-        this.graphics.lineTo(currentPoint.x, currentPoint.y);
         this.parentStage.addChild(this.graphics);
     }
 }
