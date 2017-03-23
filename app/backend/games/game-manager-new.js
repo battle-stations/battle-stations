@@ -114,6 +114,7 @@ class GameManager {
   }
 
   _calculatePoints(city) {
+    console.log(this.game.roundPoints);
     if(this.game.roundPoints.length === 0) {
       return {
         point: {
