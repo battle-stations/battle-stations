@@ -344,14 +344,14 @@ class GameSession {
   }
 
   end(result){
+    const that = this;
     clearInterval(this.gameInterval);
     const statistic = this.sendStatistics(result);
     myServer.displaySocket.broadcastOver(statistic);
-    this.gameInterval.setTimeout(function () {
-        this.gameManager.newGame();
+    setTimeout(function () {
+        that.gameManager.newGame();
     }, 60000);
-    clearTimeout(this.gameInterval);
-    delete this;
+    console.log("end timeout");
   }
 
   sendStatistics(result){
@@ -543,5 +543,5 @@ teamManager.teams["Muenchen"].stations["Marienplatz"].addTrack(1);
 teamManager.teams["Muenchen"].stations["Marienplatz"].addTrack(2);
 const gameManager = new GameManager(teamManager.teams["Stuttgart"], teamManager.teams["Muenchen"]);
 const game = gameManager.newGame();
-game.startGame();
+game.end(-1);
 console.log(game);
