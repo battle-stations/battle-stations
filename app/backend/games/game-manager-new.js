@@ -63,6 +63,7 @@ class GameManager {
       };
       this.running = true;
       this.server.displaySocket.broadcastNew();
+      this.gameStatistics.maxPlayers = this.playersConnected;
       this.frameInterval = setInterval(this._createFrame.bind(this), 1000/frames);
     }
   }
