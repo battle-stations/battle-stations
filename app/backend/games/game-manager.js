@@ -21,16 +21,12 @@ class ClicksPerTeamProto {
 }
 
 class GameProto {
-  constructor(roundPoints){
-    this.roundPoints = roundPoints;
-  }
-
   constructor(){
-
+    this.roundPoints = [];
   }
 
-  addRoundPoint(roundPoints){
-    this.roundPoints.push();
+  addRoundPoint(roundPoint){
+    this.roundPoints.push(roundPoint);
   }
 }
 
@@ -50,7 +46,7 @@ class TeamPointProto {
 class PointProto{
   constructor(xPoint,yPoint){
     this.x = xPoint;
-    this.y = zPoint;
+    this.y = yPoint;
   }
 }
 
@@ -111,13 +107,13 @@ class Track {
   addScreen(screenUuid){
     const game = this.station.team.currentGame.gameProto;
     this.screens.push(screenUuid);
-    myServer.DisplaySocket.sendGame(screenUuid, game);
+    myServer.displaySocket.sendGame(screenUuid, game);
   }
 
   generateToken() {
     let token = this.station.team.teamId + "_" + this.station.stationId + "_" + this.trackId;
     for(let i = 0; i < this.screens.length(); i++) {
-      myServer.DisplaySocket.sendToken(screens[i], token);
+      myServer.displaySocket.sendToken(screens[i], token);
     }
   }
 
@@ -218,25 +214,25 @@ class GameSession {
     this.teamOneY.push(Math.round(Math.random() * this.sizeY));
     this.teamTwoX.push(Math.round(Math.random() * this.sizeX));
     this.teamTwoY.push(Math.round(Math.random() * this.sizeY));
-    myServer.DisplaySocket.broadcastNew();
+    myServer.displaySocket.broadcastNew();
     const teamOne = this.gameManager.teamOne;
     const teamTwo = this.gameManager.teamTwo;
     this.gameInterval = timer.setInterval(function() {
         that.updatePosition(1);
         that.updatePosition(2);
-        const point1 = PointProto(that.teamOneX[that.teamOneX.length-1],that.teamOneY[that.teamOneY.length-1]);
-        const point2 = PointProto(that.teamTwoX[that.teamTwoX.length-1],that.teamTwoY[that.teamTwoY.length-1]);
-        const teamPoint1 = TeamPointProto(point1, that.teamOne.teamId);
-        const teamPoint2 = TeamPointProto(point2, that.teamTwo.teamId);
-        const roundPoint = RoundPointProto([teamPoint1,teamPoint2]);
-        this.gameProto.addRoundPoint(roundPoint);
-        myServer.DisplaySocket.broadcastUpdate(roundPoint);
+        const point1 = new PointProto(that.teamOneX[that.teamOneX.length-1],that.teamOneY[that.teamOneY.length-1]);
+        const point2 = new PointProto(that.teamTwoX[that.teamTwoX.length-1],that.teamTwoY[that.teamTwoY.length-1]);
+        const teamPoint1 = new TeamPointProto(point1, that.gameManager.teamOne.teamId);
+        const teamPoint2 = new TeamPointProto(point2, that.gameManager.teamTwo.teamId);
+        const roundPoint = new RoundPointProto([teamPoint1,teamPoint2]);
+        that.gameProto.addRoundPoint(roundPoint);
+        myServer.displaySocket.broadcastUpdate(roundPoint);
         let result = that.detectCollision();
         if (result < 0) {
           that.end(result);
         }
-        console.log(that.teamOneX[that.teamOneX.length-1] + " " + that.teamOneY[that.teamOneY.length-1] + " " + that.teamOneDir);
-        console.log(that.teamTwoX[that.teamTwoX.length-1] + " " + that.teamTwoY[that.teamTwoY.length-1] + " " + that.teamTwoDir);
+        //console.log(that.teamOneX[that.teamOneX.length-1] + " " + that.teamOneY[that.teamOneY.length-1] + " " + that.teamOneDir);
+        //console.log(that.teamTwoX[that.teamTwoX.length-1] + " " + that.teamTwoY[that.teamTwoY.length-1] + " " + that.teamTwoDir);
     }, this.interval);
   }
 
@@ -350,7 +346,7 @@ class GameSession {
   end(result){
     clearInterval(this.gameInterval);
     const statistic = this.sendStatistics(result);
-    myServer.DisplaySocket.broadcastOver(statistic);
+    myServer.displaySocket.broadcastOver(statistic);
     this.gameInterval.setTimeout(function () {
         this.gameManager.newGame();
     }, 60000);
@@ -364,9 +360,9 @@ class GameSession {
     }else if(result == -2){
       result = this.gameManager.teamOne.teamId;
     }
-    const clicksTeam1 = ClicksPerTeamProto(this.gameManager.teamOne.teamId, this.inputManagerOne.clicksTeam1);
-    const clicksTeam2 = ClicksPerTeamProto(this.gameManager.teamTwo.teamId, this.inputManagerTwo.clicksTeam2);
-    const statistic = StatisticProto(result, [clicksTeam1, clicksTeam2], players.length);
+    const clicksTeam1 = new ClicksPerTeamProto(this.gameManager.teamOne.teamId, this.inputManagerOne.clicksTeam1);
+    const clicksTeam2 = new ClicksPerTeamProto(this.gameManager.teamTwo.teamId, this.inputManagerTwo.clicksTeam2);
+    const statistic = new StatisticProto(result, [clicksTeam1, clicksTeam2], players.length);
     return statistic;
   }
 }
@@ -419,7 +415,7 @@ class GameManager {
 
   newGame(){
     this.gameId = shortid.generate();
-    const protoGame = GameProto();
+    const protoGame = new GameProto();
     let game = new GameSession(this.gameId, this.sizeX, this.sizeY, this, protoGame);
     this.teamOne.setCurrentGame(game, 1);
     this.teamTwo.setCurrentGame(game, 2);
@@ -428,7 +424,7 @@ class GameManager {
   }
 
   getCurrentGame(){
-    myServer.DisplaySocket.sendGame(displayUuid, game);
+    myServer.displaySocket.sendGame(displayUuid, game);
   }
 
   finishCurrentGame(displayUuid){
@@ -439,6 +435,7 @@ class GameManager {
 
 
 myServer.controlSocket.on('join',(uuid, token) => {
+  console.log("Player " + uuid + " joined the game [BACKEND]");
   players[uuid] = token;
   token = players[uuid].token.split("_");
   let team = token[0];
@@ -448,6 +445,7 @@ myServer.controlSocket.on('join',(uuid, token) => {
 });
 
 myServer.controlSocket.on('rightDown',(uuid) => {
+  console.log("Player " + uuid + " rightDown [BACKEND]");
   players[uuid] = token;
   token = players[uuid].token.split("_");
   let team = token[0];
@@ -465,6 +463,7 @@ myServer.controlSocket.on('rightDown',(uuid) => {
 });
 
 myServer.controlSocket.on('leftDown',(uuid) => {
+  console.log("Player " + uuid + " leftDown [BACKEND]");
   players[uuid] = token;
   token = players[uuid].token.split("_");
   let team = token[0];
@@ -482,6 +481,7 @@ myServer.controlSocket.on('leftDown',(uuid) => {
 });
 
 myServer.controlSocket.on('rightUp',(uuid) => {
+  console.log("Player " + uuid + " rightUp [BACKEND]");
   players[uuid] = token;
   token = players[uuid].token.split("_");
   let team = token[0];
@@ -499,6 +499,7 @@ myServer.controlSocket.on('rightUp',(uuid) => {
 });
 
 myServer.controlSocket.on('leftUp',(uuid) => {
+  console.log("Player " + uuid + " leftUp [BACKEND]");
   players[uuid] = token;
   token = players[uuid].token.split("_");
   let team = token[0];
@@ -516,6 +517,7 @@ myServer.controlSocket.on('leftUp',(uuid) => {
 });
 
 myServer.controlSocket.on('disconnect',(uuid) => {
+  console.log("Player " + uuid + " disconnected [BACKEND]");
   token = players[uuid].token.split("_");
   let team = token[0];
   let station = token[1];
@@ -543,4 +545,3 @@ const gameManager = new GameManager(teamManager.teams["Stuttgart"], teamManager.
 const game = gameManager.newGame();
 game.startGame();
 console.log(game);
-game.inputManagerOne.increaseRight();
