@@ -4,8 +4,11 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+const GameManager = require('./games/game-manager-new');
 
 var app = express();
+
+const game = new GameManager();
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -17,12 +20,15 @@ app.use(cookieParser());
 
 //Setup static delivery files
 app.use(express.static(path.join(__dirname, '../frontend')));
+app.use('/messages', express.static(path.join(__dirname, '../messages')));
 app.use('/graphic_framework', express.static(path.join(__dirname, '../node_modules/pixi.js/dist')));
 app.use('/bootstrap', express.static(path.join(__dirname, '../node_modules/bootstrap/dist')));
+app.use('/jquery', express.static(path.join(__dirname, '../node_modules/jquery/dist')));
 
 
 //Setup Routes
-app.use('/api/v1/', require('./routes/index'));
+// app.use('/api/v1/', require('./routes/index'));
+// app.use('/api/v1/', require('./routes/games'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
