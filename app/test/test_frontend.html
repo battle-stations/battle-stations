@@ -3,13 +3,17 @@
 <head>
   <meta charset="utf-8">
   <title>Mocha Tests</title>
-  <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+  <link rel="stylesheet" href="mocha/mocha.css" />
 </head>
 <body>
   <div id="mocha"></div>
-  <script src="../node_modules/chai/chai.js"></script>
-  <script src="../node_modules/mocha/mocha.js"></script>
-  <script src="../frontend/js/socket/socket.js"></script>
+  <script src="chai/chai.js"></script>
+  <script src="mocha/mocha.js"></script>
+
+  <script src="protobuf/protobuf.js"></script>
+  <script type="text/javascript" src="js/socket/game-serialization.js"></script>
+  <script type="text/javascript" src="js/socket/socket.js"></script>
+
   <script>mocha.setup('bdd')</script>
   <script src="join.spec.js"></script>
   <script>
