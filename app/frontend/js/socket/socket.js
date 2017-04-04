@@ -133,6 +133,7 @@ class ControlSocket {
       switch(decoded.opcode) {
         case 'ACK':
           this.status = GameSerialization.Status.decode(decoded.message).number;
+          this.onAck();
           break;
         case 'ERR':
           this.onError(GameSerialization.Error.decode(decoded.message));
@@ -166,6 +167,10 @@ class ControlSocket {
     if(this.status == 3) {
       this._socket.send(GameSerialization.encodeMessage(`LUP`));
     }
+  }
+
+  onAck() {
+    console.log('ACK');
   }
 
   onError(message) {
