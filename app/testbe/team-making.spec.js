@@ -9,7 +9,7 @@ const should = chai.should();
 let gameManager;
 
 describe('#21', () => {
-    it('team should be assigned according to token', done => {
+    it('should assign new users according to their token', done => {
         gameManager = new GameManager();
 
         const controlWS = new WebSocket('ws://localhost:8080', 'control', {
