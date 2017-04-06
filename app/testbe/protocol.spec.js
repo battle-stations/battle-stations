@@ -6,11 +6,13 @@ const WebSocket = require('ws');
 
 const should = chai.should();
 
+let gameManager;
+
 describe('#29', () => {
     it('should delete a client when it disconnects', done => {
         let testUuid;
 
-        const gameManager = new GameManager();
+        gameManager = new GameManager();
         const ws = new WebSocket('ws://localhost:8080', 'control', {
             perMessageDeflate: false,
         });
@@ -40,5 +42,10 @@ describe('#29', () => {
             should.not.exist(gameManager.server.controlSocket.clients[testUuid]);
             done();
         });
+
+    });
+
+    after(function() {
+        gameManager.server._wss.close();
     });
 });
