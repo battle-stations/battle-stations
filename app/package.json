@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./backend/bin/www",
+    "test": "mocha testbe",
     "socket": "node ./backend/socket/socket.js",
     "debug": "node debug ./backend/bin/www"
   },
