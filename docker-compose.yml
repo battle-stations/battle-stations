@@ -11,6 +11,7 @@ services:
   command: "npm start"
   ports:
     - "3000:3000"
+    - "8080:8080"
   volumes:
     - /home/docker/app/battle-stations/app:/app
   links:
