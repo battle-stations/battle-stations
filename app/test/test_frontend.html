@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Frontend Tests - Battle-Stations</title>
+  <link rel="stylesheet" href="mocha/mocha.css" />
+</head>
+<body>
+  <div id="mocha"></div>
+  <script src="chai/chai.js"></script>
+  <script src="mocha/mocha.js"></script>
+
+   <script src="jquery/jquery.js"></script>
+  <script src="protobuf/protobuf.js"></script>
+  <script type="text/javascript" src="js/socket/game-serialization.js"></script>
+  <script type="text/javascript" src="js/socket/socket.js"></script>
+
+  <script>mocha.setup('bdd')</script>
+  <script src="frontend.spec.js"></script>
+  <script>
+    mocha.run();
+  </script>
+</body>
+</html>
