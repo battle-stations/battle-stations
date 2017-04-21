@@ -33,8 +33,8 @@ function update(update) {
 	let updatePlayerTwo = (update.teamPoints.length > 1) ? update.teamPoints[1].point : null;
 
 	//console.log('Drawing: ', updatePlayerOne.y + count);
-	engine.snakes[0].addPoint(updatePlayerOne.x, updatePlayerOne.y);
-	if(updatePlayerTwo) engine.snakes[1].addPoint(updatePlayerTwo.x, updatePlayerTwo.y);
+	engine.snakes.get(0).addPoint(updatePlayerOne.x, updatePlayerOne.y);
+	if(updatePlayerTwo) engine.snakes.get(1).addPoint(updatePlayerTwo.x, updatePlayerTwo.y);
 }
 
 function setCurrentGame(game) {
@@ -56,7 +56,7 @@ function setCurrentGame(game) {
     		for(let j in currentRound.teamPoints) {
     			let currentTeam = currentRound.teamPoints[j];
     			//console.log('CT: ', currentTeam);
-    			engine.snakes[j].addPoint(currentTeam.point.x, currentTeam.point.y);
+    			engine.snakes.get(j).addPoint(currentTeam.point.x, currentTeam.point.y);
     		}
     	} 
     }

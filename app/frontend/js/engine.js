@@ -4,7 +4,7 @@ class Engine {
         this.width = width;
         this.height = height;
         this.pixiApp = null;
-        this.snakes = [];
+        this.snakes = new List(null);
     }
 
     init() {
@@ -19,17 +19,19 @@ class Engine {
     }
 
     clear() {
-        for(let i = 0; i < this.snakes.length; i++) {
-            this.snakes[i].graphics.destroy();
-            this.snakes[i] = null;
+        let it = this.snakes.iterator();
+        while(it.hasNext()) {
+            let snake = it.next();
+            snake.graphics.destroy();
+            snake = null;
         }
-        this.snakes = [];
+        this.snakes = new List(null);
         //if(this.pixiApp)
             //this.pixiApp.destroy();
     }
 
     createSnake(x, y, color) {
         var newSnake = new Snake(x, y, color, this.pixiApp.stage);
-        this.snakes.push(newSnake);
+        this.snakes.pushBack(newSnake);
     }
 }
