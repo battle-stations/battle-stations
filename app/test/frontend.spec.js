@@ -62,7 +62,7 @@ describe('Pause game', function() {
     });
 }); 	 
 
-describe('Finish game', function() {  
+/*describe('Finish game', function() {  
     it('should finish game after collision', function(done) {
     	this.timeout(60000);
     	let finished = false;
@@ -74,4 +74,4 @@ describe('Finish game', function() {
     		}
     	}
     });
-}); 	 
+});*/	 
