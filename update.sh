@@ -8,4 +8,4 @@ docker-compose build
 docker-compose up -d
 docker-machine ip battle-stations
 sleep 5
-curl http://battle.stations/test
+firefox http://localhost:3000/test_frontend.html

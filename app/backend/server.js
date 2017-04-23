@@ -4,11 +4,12 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-const GameManager = require('./games/game-manager-new');
+const mediator = require('./mediator');
 
 var app = express();
 
-const game = new GameManager();
+const mediator = new Mediator();
+mediator.initServer();
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
