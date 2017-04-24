@@ -7,11 +7,88 @@ let uuid = require('uuid');
 
 let GameSerialization = require('./game-serialization');
 
+/**
+ * The prototype of a general command.
+ * 
+ * @class Command
+ */
+class Command {
+  /**
+   * Creates an instance of Command.
+   * 
+   * @memberOf Command
+   */
+  constructor() {}
+  /**
+   * Executes the command. Should be overwritten.
+   * 
+   * @memberOf Command
+   */
+  execute() {}
+}
+
+/**
+ * A command which sends a message over a WebSocket connection.
+ * 
+ * @class SendMessageCommand
+ * @extends {Command}
+ */
+class SendMessageCommand extends Command {
+  /**
+   * Creates an instance of SendMessageCommand.
+   * 
+   * @param {WebSocket} ws 
+   * @param {UInt8Array} message 
+   * 
+   * @memberOf SendMessageCommand
+   */
+  constructor(ws, message) {
+    this.ws = ws;
+    this.message = message;
+    super();
+  }
+
+  /**
+   * Sends the given message to the given socket.
+   * 
+   * @memberOf SendMessageCommand
+   */
+  execute() {
+    this.ws.send(message);
+  }
+}
+
+/**
+ * A class for calling commands.
+ * 
+ * @class Caller
+ */
+class Caller {
+  /**
+   * Creates an instance of Caller.
+   * 
+   * @memberOf Caller
+   */
+  constructor() {}
+  /**
+   * Executes a given command.
+   * 
+   * @param {Command} cmd 
+   * 
+   * @memberOf Caller
+   */
+  execute(cmd) {
+    cmd.execute();
+  }
+}
+
 class DisplaySocket extends events.EventEmitter {
   constructor() {
     super();
 
     this.clients = {};
+    // Create new Caller
+    this.caller = new Caller();
   }
 
   addClient(ws) {
@@ -32,7 +109,10 @@ class DisplaySocket extends events.EventEmitter {
           this._ERR(ws, decoded);
           break;
         default:
-          ws.send(GameSerialization.encodeError(1));
+          // Create new SendMessageCommand
+          let wsSend = new SendMessageCommand(ws, GameSerialization.encodeError(1));
+          // Execute SendMessageCommand
+          this.caller.execute(wsSend);
           break;
       }
     });
