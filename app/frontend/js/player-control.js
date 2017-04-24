@@ -2,21 +2,26 @@
 let controlSocket = null;
 
 $(document).ready(function() {
-  
-  let leftButton = new ControlButton(document.getElementById("left-control"), "Left");
-  let rightButton = new ControlButton(document.getElementById("right-control"), "Right");
-
-  leftButton.setNeighborButton(rightButton);
-  rightButton.setNeighborButton(leftButton);
 
   let token = window.location.search.split('=')[1];
-  console.log(token); 
+  // console.log(token); 
   if(token == undefined)
     throw 'Enter token in url!';
 
   controlSocket = new ControlSocket(token);
   setTeamName(token);  
-  
+
+
+  let leftButton = new ControlButton(document.getElementById("left-control"), "Left");
+  let rightButton = new ControlButton(document.getElementById("right-control"), "Right");
+
+  leftButton.addObserver(rightButton);
+  leftButton.addObserver(controlSocket);
+
+  rightButton.addObserver(leftButton);
+  rightButton.addObserver(controlSocket);
+
+
 })
 
 function setTeamName(token) {
@@ -25,49 +30,40 @@ function setTeamName(token) {
     $("#teamName").text(splitToken[0]);
 }
 
-class ControlButton {
+class ControlButton extends Subject {
   constructor(htmlButton, direction) {
-    this.scope = this;
+    super();
     this.htmlButton = htmlButton;
-    htmlButton.addEventListener("touchstart", this.sendStart.bind(this.scope));
-    htmlButton.addEventListener("touchend", this.sendStop.bind(this.scope));
-    
-    //for testing on non-mobile devices
-    htmlButton.addEventListener("mousedown", this.sendStart.bind(this.scope));
-    htmlButton.addEventListener("mouseup", this.sendStop.bind(this.scope));
+    htmlButton.addEventListener("touchstart", this.sendStart.bind(this));
+    htmlButton.addEventListener("touchend", this.sendStop.bind(this));
 
-    this.neighbor = null;
+    //for testing on non-mobile devices
+    htmlButton.addEventListener("mousedown", this.sendStart.bind(this));
+    htmlButton.addEventListener("mouseup", this.sendStop.bind(this));
+    
+    this.otherStarted = false;
     this.direction = direction;
-    this.ongoingTouch = false;
+  };
+
+  update(value){
+    if (value.includes("start")) {
+      this.otherStarted = true;
+      this.htmlButton.disabled = true;
+    } else if (value.includes("end")) {
+      this.otherStarted = false;
+      this.htmlButton.disabled = false;
+    }
   };
 
   sendStart() {
-    if(!this.neighbor.ongoingTouch) {
-      this.ongoingTouch = true;
-      this.neighbor.htmlButton.disabled = true; 
-
-
-      if(this.direction == 'Right')
-        controlSocket.sendRightDown();
-      else if(this.direction == 'Left')
-        controlSocket.sendLeftDown();
+    if (!this.otherStarted) {
+      this.notify("start"+this.direction);
     }
   };
   
   sendStop() {
-    if (this.ongoingTouch) {
-      this.ongoingTouch = false;
-      this.neighbor.htmlButton.disabled = false;
-
-      if(this.direction == 'Right')
-        controlSocket.sendRightUp();
-      else if(this.direction == 'Left')
-        controlSocket.sendLeftUp();
-      // $.controlSocket["send" + this.direction + "Down"]();
+    if (!this.otherStarted) {
+      this.notify("end" + this.direction);
     }
-  }
-
-  setNeighborButton(neighbor) {
-    this.neighbor = neighbor;
   }
 }

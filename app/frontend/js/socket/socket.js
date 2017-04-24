@@ -117,12 +117,14 @@ class DisplaySocket {
   }
 }
 
-class ControlSocket {
+class ControlSocket extends Observer {
   constructor(token) {
+    super();
     this.status = 0;
     this.token = {
       token: token
     };
+
 
     this._socket = new WebSocket('ws://localhost:8080', 'control');
     this._socket.binaryType = 'arraybuffer';
@@ -144,6 +146,26 @@ class ControlSocket {
       }
     }
   }
+
+  // for Observer 
+  update(value) {
+    switch (value) {
+      case "startRight":
+        this.sendRightDown();
+        break;
+      case "startLeft":
+        this.sendLeftDown();
+        break;
+      case "endRight":
+        this.sendRightUp();
+        break;
+      case "endLeft":
+        this.sendLeftUp();
+        break;
+    }
+
+  }
+
 
   sendRightDown() {
     if(this.status == 1) {
