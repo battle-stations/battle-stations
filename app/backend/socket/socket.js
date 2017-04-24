@@ -4,7 +4,7 @@
 let events = require('events');
 let ws = require('ws');
 let uuid = require('uuid');
-
+const Chain = require('../chain');
 let GameSerialization = require('./game-serialization');
 
 class DisplaySocket extends events.EventEmitter {
@@ -233,9 +233,15 @@ class ServerSocket {
     this.controlSocket = new ControlSocket();
     this._wss = new ws.Server({port: 8080});
 
+    let chain = new Chain.DisplayHandler(this.displaySocket);
+    chain.add(new Chain.ControlHandler(this.controlSocket)); 
+
     this._wss.on('connection', (ws) => {
       ws.uuid = uuid.v4();
 
+      chain.handle(ws.protocol, ws);
+
+      /*
       switch(ws.protocol) {
         case 'display':
           this.displaySocket.addClient(ws);
@@ -247,6 +253,7 @@ class ServerSocket {
           ws.send('Nope, sorry.');
           break;
       }
+      */
     });
   }
 }
