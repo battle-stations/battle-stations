@@ -112,7 +112,7 @@ class GameManager {
 
   _countClicks(uuid) {
     for(let i in this.gameStatistics.clicksPerTeam) {
-      if(this.gameStatistics.clicksPerTeam[i].team.city == mediator.getTeamCity(uuid)) {
+      if(this.gameStatistics.clicksPerTeam[i].team.city == this.mediator.getTeamCity(uuid)) {
         this.gameStatistics.clicksPerTeam[i].clicks++;
       }
     }

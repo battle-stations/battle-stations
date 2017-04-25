@@ -1,13 +1,11 @@
 const assert = require('assert');
 const chai = require('chai');
-const GameManager = require('../backend/games/game-manager-new');
 const Mediator = require('../backend/mediator');
 const GameSerialization = require('../backend/socket/game-serialization');
 const WebSocket = require('ws');
 
 const should = chai.should();
 
-let gameManager;
 let mediator;
 
 const track0 = {
@@ -35,7 +33,6 @@ describe('#26', () => {
 
     it('should automatically start a new game', done => {
         mediator = new Mediator();
-        gameManager = mediator.game;
 
         // first display
         const display0 = new WebSocket('ws://localhost:8080', 'display', {
@@ -43,7 +40,7 @@ describe('#26', () => {
         });
         display0.binaryType = 'arraybuffer';
         display0.on('open', () => {
-            gameManager.should.have.property('running', false);
+            mediator.game.should.have.property('running', false);
             // send join request
             display0.send(GameSerialization.encodeMessage('JIN', 'Track', track0));
         });
@@ -85,7 +82,7 @@ describe('#26', () => {
 
                 // updated game state
                 case 'UDT':
-                    gameManager.should.have.property('running', true);
+                    mediator.game.should.have.property('running', true);
                     done();
                     break;
 
@@ -125,6 +122,6 @@ describe('#26', () => {
 
     // free port 8080 after test
     after(() => {
-        gameManager.server._wss.close();
+        mediator.server._wss.close();
     });
 });

@@ -1,13 +1,11 @@
 const assert = require('assert');
 const chai = require('chai');
 const Mediator = require('../backend/mediator');
-const GameManager = require('../backend/games/game-manager-new');
 const GameSerialization = require('../backend/socket/game-serialization');
 const WebSocket = require('ws');
 
 const should = chai.should();
 
-let gameManager;
 let mediator;
 
 const track0 = {
@@ -34,7 +32,6 @@ describe('#22', () => {
 
     before(() => {
         mediator = new Mediator();
-        gameManager = mediator.game;
 
         // first display
         const display0 = new WebSocket('ws://localhost:8080', 'display', {
@@ -118,7 +115,7 @@ describe('#22', () => {
                 case 'UDT':
                     // check if direction changed over last two frames
                     if (counter > 0) {
-                        directions.push(gameManager.snakeDirection.Stuttgart);
+                        directions.push(mediator.game.snakeDirection.Stuttgart);
                         counter --;
                     } else {
                         directions[0].should.not.be.equal(directions[1]);
@@ -192,6 +189,6 @@ describe('#22', () => {
     // free port 8080 after test
     after(() => {
         //console.log(gameManager.snakeDirection);
-        gameManager.server._wss.close();
+        mediator.server._wss.close();
     });
 });

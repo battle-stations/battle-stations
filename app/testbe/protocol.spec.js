@@ -1,13 +1,11 @@
 const assert = require('assert');
 const chai = require('chai');
 const Mediator = require('../backend/mediator');
-const GameManager = require('../backend/games/game-manager-new');
 const GameSerialization = require('../backend/socket/game-serialization');
 const WebSocket = require('ws');
 
 const should = chai.should();
 
-let gameManager;
 let mediator;
 
 describe('#29', () => {
@@ -15,7 +13,6 @@ describe('#29', () => {
         let testUuid;
 
         mediator = new Mediator();
-        gameManager = mediator.game;
         const ws = new WebSocket('ws://localhost:8080', 'control', {
             perMessageDeflate: false,
         });
@@ -36,19 +33,19 @@ describe('#29', () => {
             ws.close();
         });
 
-        gameManager.server.controlSocket.on('join', (uuid, token) => {
+        mediator.server.controlSocket.on('join', (uuid, token) => {
             testUuid = uuid;
-            should.exist(gameManager.server.controlSocket.clients[testUuid]);
+            should.exist(mediator.server.controlSocket.clients[testUuid]);
         });
 
-        gameManager.server.controlSocket.on('disconnect', () => {
-            should.not.exist(gameManager.server.controlSocket.clients[testUuid]);
+        mediator.server.controlSocket.on('disconnect', () => {
+            should.not.exist(mediator.server.controlSocket.clients[testUuid]);
             done();
         });
 
     });
 
     after(function() {
-        gameManager.server._wss.close();
+        mediator.server._wss.close();
     });
 });
