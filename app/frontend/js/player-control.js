@@ -1,19 +1,18 @@
 
 let controlSocket = null;
 
-$(document).ready(function() {
-
+// $(document).ready(function() {
+window.onload = function() {
   let token = window.location.search.split('=')[1];
-  // console.log(token); 
   if(token == undefined)
-    throw 'Enter token in url!';
+    token = "Stuttgart_Stadtmitte_1";
 
   controlSocket = new ControlSocket(token);
   setTeamName(token);  
 
-
   let leftButton = new ControlButton(document.getElementById("left-control"), "Left");
   let rightButton = new ControlButton(document.getElementById("right-control"), "Right");
+
 
   leftButton.addObserver(rightButton);
   leftButton.addObserver(controlSocket);
@@ -21,8 +20,7 @@ $(document).ready(function() {
   rightButton.addObserver(leftButton);
   rightButton.addObserver(controlSocket);
 
-
-})
+}
 
 function setTeamName(token) {
   let splitToken = token.split("_");
@@ -33,6 +31,8 @@ function setTeamName(token) {
 class ControlButton extends Subject {
   constructor(htmlButton, direction) {
     super();
+    if (htmlButton == undefined)
+      htmlButton = document.createElement("button");
     this.htmlButton = htmlButton;
     htmlButton.addEventListener("touchstart", this.sendStart.bind(this));
     htmlButton.addEventListener("touchend", this.sendStop.bind(this));
