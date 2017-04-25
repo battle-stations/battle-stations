@@ -1,5 +1,6 @@
 const assert = require('assert');
 const chai = require('chai');
+const Mediator = require('../backend/mediator');
 const GameManager = require('../backend/games/game-manager-new');
 const GameSerialization = require('../backend/socket/game-serialization');
 const WebSocket = require('ws');
@@ -7,12 +8,14 @@ const WebSocket = require('ws');
 const should = chai.should();
 
 let gameManager;
+let mediator;
 
 describe('#29', () => {
     it('should delete a client when it disconnects', done => {
         let testUuid;
 
-        gameManager = new GameManager();
+        mediator = new Mediator();
+        gameManager = mediator.game;
         const ws = new WebSocket('ws://localhost:8080', 'control', {
             perMessageDeflate: false,
         });
@@ -28,7 +31,7 @@ describe('#29', () => {
                 }
             }));
         });
-        
+
         ws.on('message', (msg) => {
             ws.close();
         });

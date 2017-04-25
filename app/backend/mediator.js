@@ -1,16 +1,15 @@
 const GameManager = require('./games/game-manager-new');
-const ServerSocket = require('../socket/socket');
+const ServerSocket = require('./socket/socket');
 
-const mediator = {
+class Mediator {
   constructor() {
-    this.game = {};
-    this.server = {};
+    this.server = new ServerSocket();
+    this.game = new GameManager(this);
   }
 
-  initServer() {
-    this.game = new GameManager();
+  /*initServer() {
     this.server = new ServerSocket();
-  }
+  }*/
 
   initDisplaySocket() {
     this.server.displaySocket.on('join', (uuid, track) => {
@@ -24,7 +23,7 @@ const mediator = {
       this.game._startGame();
 
       this.server.displaySocket.sendToken(uuid, `${track.station.team.city}_${track.station.name}_${track.number}`);
-    }
+    });
 
     this.server.displaySocket.on('gameState', (uuid) => {
       if(this.game.running) {
@@ -88,7 +87,7 @@ const mediator = {
   }
 
   broadcastGameOver(statistics) {
-    this.server.displaySocket.broadcastOver(this.gameStatistics);
+    this.server.displaySocket.broadcastOver(statistics);
   }
 
   broadcastGameUpdate(roundPoints) {
@@ -110,4 +109,4 @@ const mediator = {
 
 };
 
-module.exports = mediator;
+module.exports = Mediator;

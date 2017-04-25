@@ -8,8 +8,11 @@ const width = 800;
 const height = 600;
 
 class GameManager {
-  constructor() {
-    this.mediator = new Mediator();
+  constructor(mediator) {
+    this.mediator = mediator;
+    //mediator.initServer();
+    mediator.initDisplaySocket();
+    mediator.initControlSocket();
     //this.server = new ServerSocket();
     this.running = false;
     this.startup = true;
@@ -23,9 +26,6 @@ class GameManager {
     this.playersConnected = 0;
 
     this._mockTrainInterval = setInterval(this._incomingTrainMock.bind(this), trainTime);
-
-    mediator.initDisplaySocket();
-    mediator.initControlSocket();
   }
 
   _currentTeamArray() {
@@ -176,7 +176,7 @@ class GameManager {
 
     this.game.roundPoints.push(roundPoints);
     //this.server.displaySocket.broadcastUpdate(roundPoints);
-    mediator.broadcastGameUpdate(roundPoints);
+    this.mediator.broadcastGameUpdate(roundPoints);
   }
 
   _checkCollision(teamPoint) {
@@ -287,18 +287,18 @@ class GameManager {
     };
 
     //this.incomingTrain(track);
-    mediator.broadcastTrackIncoming(track);
-    setTimeout(mediator.broadcastTrackOutgoing.bind(this, track), trainStayTime);
+    this.mediator.broadcastTrackIncoming(track);
+    setTimeout(this.outgoingTrain.bind(this, track), trainStayTime);
 
   }
 
   /*incomingTrain(track) {
     this.server.displaySocket.broadcastTrackIncoming(track);
-  }
+  }*/
 
   outgoingTrain(track) {
-    this.server.displaySocket.broadcastTrackOutgoing(track);
-  }*/
+    this.mediator.broadcastTrackOutgoing(track);
+  }
 }
 
 module.exports = GameManager;

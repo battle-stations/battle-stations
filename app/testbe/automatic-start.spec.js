@@ -1,12 +1,14 @@
 const assert = require('assert');
 const chai = require('chai');
 const GameManager = require('../backend/games/game-manager-new');
+const Mediator = require('../backend/mediator');
 const GameSerialization = require('../backend/socket/game-serialization');
 const WebSocket = require('ws');
 
 const should = chai.should();
 
 let gameManager;
+let mediator;
 
 const track0 = {
     track: 1,
@@ -32,7 +34,8 @@ const track1 = {
 describe('#26', () => {
 
     it('should automatically start a new game', done => {
-        gameManager = new GameManager();
+        mediator = new Mediator();
+        gameManager = mediator.game;
 
         // first display
         const display0 = new WebSocket('ws://localhost:8080', 'display', {
@@ -57,7 +60,7 @@ describe('#26', () => {
             display1.send(GameSerialization.encodeMessage('JIN', 'Track', track1));
         });
 
-        
+
         display0.on('message', (event) => {
             let decoded = GameSerialization.decodeMessage(new Uint8Array(event));
 
@@ -73,19 +76,19 @@ describe('#26', () => {
                     display0.status = 3;
                     display0.send(GameSerialization.encodeMessage('ACK', 'Status', {number: display0.status}));
                     break;
-                
+
                 // current game state
                 case 'CGM':
                     display0.status = 2;
                     display0.send(GameSerialization.encodeMessage('ACK', 'Status', {number: display0.status}));
                     break;
-                
+
                 // updated game state
                 case 'UDT':
                     gameManager.should.have.property('running', true);
                     done();
                     break;
-            
+
                 default:
                     break;
             }
@@ -112,12 +115,12 @@ describe('#26', () => {
                     display1.status = 2;
                     display1.send(GameSerialization.encodeMessage('ACK', 'Status', {number: display1.status}));
                     break;
-            
+
                 default:
                     break;
             }
         });
-        
+
     });
 
     // free port 8080 after test
