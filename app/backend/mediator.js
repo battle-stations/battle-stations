@@ -7,10 +7,6 @@ class Mediator {
     this.game = new GameManager(this);
   }
 
-  /*initServer() {
-    this.server = new ServerSocket();
-  }*/
-
   initDisplaySocket() {
     this.server.displaySocket.on('join', (uuid, track) => {
       if(this.game.teams[track.station.team.city] == null) {

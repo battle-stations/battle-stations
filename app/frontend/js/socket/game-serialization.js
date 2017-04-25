@@ -11,6 +11,10 @@ class GameSerialization {
     return null;
   }
 
+  static setMediator(mediator) {
+    this.mediator = mediator;
+  }
+
   static encodeMessage(opcode, type, message) {
     let opcodeArray = GameSerialization._generateOpcode(opcode);
     if(opcodeArray !== null) {

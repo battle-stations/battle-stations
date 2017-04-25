@@ -10,10 +10,8 @@ const height = 600;
 class GameManager {
   constructor(mediator) {
     this.mediator = mediator;
-    //mediator.initServer();
     mediator.initDisplaySocket();
     mediator.initControlSocket();
-    //this.server = new ServerSocket();
     this.running = false;
     this.startup = true;
     this.teams = {};
@@ -76,40 +74,6 @@ class GameManager {
     setTimeout(this._startGame.bind(this), startNewGameTime);
   }
 
-  /*_initDisplaySocket() {
-    this.server.displaySocket.on('join', (uuid, track) => {
-      if(this.teams[track.station.team.city] == null) {
-        this.teams[track.station.team.city] = 1;
-        this.teamsConnected++;
-      } else {
-        this.teams[track.station.team.city]++;
-      }
-
-      this._startGame();
-
-      this.server.displaySocket.sendToken(uuid, `${track.station.team.city}_${track.station.name}_${track.number}`);
-    });
-
-    this.server.displaySocket.on('gameState', (uuid) => {
-      if(this.running) {
-        this.server.displaySocket.sendGame(uuid, this.game);
-      } else {
-        this.server.displaySocket.sendOver(uuid, this.gameStatistics);
-      }
-    });
-
-    this.server.displaySocket.on('disconnect', (uuid, track) => {
-      this.teams[track.station.team.city]--;
-      if(this.teams[track.station.team.city] < 1) {
-        this.teamsConnected--;
-      }
-
-      if(this.running && this.teamsConnected < 2) {
-        this._endGame();
-      }
-    });
-  }*/
-
   _countClicks(uuid) {
     for(let i in this.gameStatistics.clicksPerTeam) {
       if(this.gameStatistics.clicksPerTeam[i].team.city == this.mediator.getTeamCity(uuid)) {
@@ -117,43 +81,6 @@ class GameManager {
       }
     }
   }
-
-  /*_initControlSocket() {
-    this.server.controlSocket.on('join', (uuid, token) => {
-      if(this.clients[this.server.controlSocket.clients[uuid].track.station.team.city] == null) {
-        this.clients[this.server.controlSocket.clients[uuid].track.station.team.city] = {};
-      }
-      this.clients[this.server.controlSocket.clients[uuid].track.station.team.city][uuid] = 0;
-      this.playersConnected++;
-      if(this.playersConnected > this.gameStatistics.maxPlayers) {
-        this.gameStatistics.maxPlayers = this.playersConnected;
-      }
-    });
-
-    this.server.controlSocket.on('rightDown', (uuid) => {
-      this._countClicks(uuid);
-      this.clients[this.server.controlSocket.clients[uuid].track.station.team.city][uuid] = 1;
-    });
-
-    this.server.controlSocket.on('leftDown', (uuid) => {
-
-      this._countClicks(uuid);
-      this.clients[this.server.controlSocket.clients[uuid].track.station.team.city][uuid] = 2;
-    });
-
-    this.server.controlSocket.on('rightUp', (uuid) => {
-      this.clients[this.server.controlSocket.clients[uuid].track.station.team.city][uuid] = 0;
-    });
-
-    this.server.controlSocket.on('leftUp', (uuid) => {
-      this.clients[this.server.controlSocket.clients[uuid].track.station.team.city][uuid] = 0;
-    });
-
-    this.server.controlSocket.on('disconnect', (uuid, track) => {
-      delete this.clients[track.station.team.city][uuid];
-      this.playersConnected--;
-    });
-  }*/
 
   _createFrame() {
     let roundPoints = {
@@ -175,7 +102,6 @@ class GameManager {
     }
 
     this.game.roundPoints.push(roundPoints);
-    //this.server.displaySocket.broadcastUpdate(roundPoints);
     this.mediator.broadcastGameUpdate(roundPoints);
   }
 
@@ -286,15 +212,10 @@ class GameManager {
       }
     };
 
-    //this.incomingTrain(track);
     this.mediator.broadcastTrackIncoming(track);
     setTimeout(this.outgoingTrain.bind(this, track), trainStayTime);
 
   }
-
-  /*incomingTrain(track) {
-    this.server.displaySocket.broadcastTrackIncoming(track);
-  }*/
 
   outgoingTrain(track) {
     this.mediator.broadcastTrackOutgoing(track);
