@@ -21,7 +21,7 @@ We are doing a collaborative game. It is....
 - In addition the game-manger does not need an instance of the server itself
 - Backendtest for mediator (mediator.spec.js) tests if the mediator has a game, a server and if the game knows the mediator
 
-##How to
+## How to
 - cd app/
 - npm install
 - npm test - backend tests
